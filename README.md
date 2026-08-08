@@ -26,11 +26,11 @@ normalized Unicode IAST
 ```swift
 import MakeDevaCore
 
-// Full line: structural prep + ICU Latin-Devanagari
+// Full line: whitespace prep + ICU Latin-Devanagari
 let deva = MakeDevaUnicode.convertLine("kṛṣṇa")   // → कृष्ण
 
-// Prep only (IAST → IAST), Unicode branch
-let prepared = MakeDevaUnicode.prepareIAST("k g") // → "kg"
+// Prep only (IAST → IAST), Unicode branch — whitespace collapse only
+let prepared = MakeDevaUnicode.prepareIAST("k  g") // → "k g"
 ```
 
 Goldens: `Tests/Fixtures/unicode-devanagari/cases.tsv`
