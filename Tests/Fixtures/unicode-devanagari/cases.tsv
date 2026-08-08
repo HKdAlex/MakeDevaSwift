@@ -1,0 +1,16 @@
+# IAST (input)	Unicode Devanagari (expected)
+# Recorded oracle for MakeDevaUnicode.convertLine — UNI-08 / #26
+# ICU Latin-Devanagari after structural prep + ICU pre-norm (ṛ→r̥, e/o→ē/ō)
+ka	क
+rāma	राम
+uvāca	उवाच
+kṛṣṇa	कृष्ण
+namo	नमो
+eva	एव
+dharma	धर्म
+śrī	श्री
+pāṇḍava	पांडव
+dhṛtarāṣṭra	धृतराष्ट्र
+k a	क
+śr ī	श्री
+t a	त
