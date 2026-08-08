@@ -6,11 +6,12 @@ struct MakeDevaUnicodeTests {
 
     // MARK: - Structural prep (Unicode branch only)
 
-    @Test("prepareIAST closes Devanagari spaces for ICU conjunct prep")
-    func prepareIASTClosesSpaces() {
-        #expect(MakeDevaUnicode.prepareIAST("k g") == "kg")
-        #expect(MakeDevaUnicode.prepareIAST("k a") == "ka")
-        #expect(MakeDevaUnicode.prepareIAST("n m k a") == "nm ka")
+    @Test("prepareIAST collapses whitespace only (no pairwise joining)")
+    func prepareIASTWhitespaceOnly() {
+        #expect(MakeDevaUnicode.prepareIAST("k  \t  g") == "k g")
+        #expect(MakeDevaUnicode.prepareIAST("k g") == "k g")
+        #expect(MakeDevaUnicode.prepareIAST("k a") == "k a")
+        #expect(MakeDevaUnicode.prepareIAST("n m k a") == "n m k a")
     }
 
     // MARK: - ICU Latin-Devanagari (UNI-08)
@@ -27,13 +28,6 @@ struct MakeDevaUnicodeTests {
         #expect(MakeDevaUnicode.convertLine("kṛṣṇa") == "कृष्ण")
         #expect(MakeDevaUnicode.convertLine("namo") == "नमो")
         #expect(MakeDevaUnicode.convertLine("eva") == "एव")
-    }
-
-    @Test("convertLine applies structural prep before ICU")
-    func prepThenICU() {
-        #expect(MakeDevaUnicode.convertLine("k a") == "क")
-        #expect(MakeDevaUnicode.convertLine("t a") == "त")
-        #expect(MakeDevaUnicode.convertLine("śr ī") == "श्री")
     }
 
     @Test("convertLine golden fixtures match committed oracle")

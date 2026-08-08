@@ -26,8 +26,8 @@ public enum MakeDevaUnicode {
 
     /// Structural prep for the **Unicode** branch only (ADR-23).
     ///
-    /// Delegates to `IndicSandhi.closeSpaces` (interim pairwise approximation until
-    /// full MakeDeva-derived extraction — [#56](https://github.com/HKdAlex/BBText/issues/56)).
+    /// Delegates to `IndicSandhi.closeSpaces` — whitespace collapse only ([#56](https://github.com/HKdAlex/BBText/issues/56)).
+    /// MakeDeva-derived boundary rules are deferred; no HKIndic pairwise joins.
     /// Does not apply ICU pre-normalization or script conversion.
     public static func prepareIAST(_ line: String) -> String {
         IndicSandhi.closeSpaces(in: line, script: .devanagari)
