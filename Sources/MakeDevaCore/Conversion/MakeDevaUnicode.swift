@@ -24,8 +24,10 @@ public enum MakeDevaUnicode {
         return transliterateToUnicodeDevanagari(prepared)
     }
 
-    /// MakeDeva-derived structural prep for the **Unicode** branch only (ADR-23).
+    /// Structural prep for the **Unicode** branch only (ADR-23).
     ///
+    /// Delegates to `IndicSandhi.closeSpaces` (interim pairwise approximation until
+    /// full MakeDeva-derived extraction — [#56](https://github.com/HKdAlex/BBText/issues/56)).
     /// Does not apply ICU pre-normalization or script conversion.
     public static func prepareIAST(_ line: String) -> String {
         IndicSandhi.closeSpaces(in: line, script: .devanagari)
