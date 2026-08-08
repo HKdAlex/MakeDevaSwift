@@ -371,7 +371,8 @@ public enum FileProcessor {
                 }
             } else if inSanskrit {
                 // Collect Sanskrit content character by character (matching lines 955-1097)
-                let char = contentArray[index]
+                // Unicode ingest: bbt_uni2bbt (makedeva.c:963-964) before markup / charconv / digraphs
+                var char = Self.applyUnicodeToBBT(contentArray[index], inputFormat: inputFormat)
 
                 // Check for end of content (matching line 958)
                 if char == "\0" {
@@ -383,10 +384,6 @@ public enum FileProcessor {
                     // Don't advance - let tag processing handle it
                     continue
                 }
-
-                // Handle Unicode to BBT conversion if needed (matching line 963-964)
-                // For now, we'll use characters directly
-                // TODO: Implement bbt_uni2bbt conversion if inputFormat is Unicode
 
                 // Handle special character sequences (matching lines 972-997)
                 if char == "<" {
@@ -1026,5 +1023,25 @@ public enum FileProcessor {
         }
 
         return (number, number1, letter)
+    }
+
+    /// Map one input character through `BBTEncoding.unicodeToBBT` when reading Unicode files.
+    /// Matches `bbt_uni2bbt()` in `bbtlib.c` / `makedeva.c:963-964`.
+    private static func applyUnicodeToBBT(_ char: Character, inputFormat: OutputFormat) -> Character {
+        guard inputFormat == .unicode else { return char }
+        guard let scalar = char.unicodeScalars.first, char.unicodeScalars.count == 1 else {
+            return char
+        }
+        let codepoint = UInt16(truncatingIfNeeded: scalar.value)
+        if codepoint < 128 {
+            return char
+        }
+        if let bbt = BBTEncoding.unicodeToBBT(codepoint),
+           let mapped = UnicodeScalar(UInt32(bbt))
+        {
+            return Character(mapped)
+        }
+        // C returns '?' for unmapped BMP < 0x2100; Swift API returns nil
+        return "?"
     }
 }
