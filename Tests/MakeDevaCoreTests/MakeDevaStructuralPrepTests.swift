@@ -23,7 +23,7 @@ struct MakeDevaStructuralPrepTests {
                 "\(parts.count > 2 ? parts[2] : "") input=\(parts[0])"
             )
         }
-        #expect(rows >= 12, "structural-prep fixture list shrank")
+        #expect(rows >= 15, "structural-prep fixture list shrank")
     }
 
     @Test("custom path still does not call prepareIAST")

@@ -10,7 +10,7 @@ Documented inequalities on `Tests/Fixtures/cross-path/corpus.tsv`. Rows stay in 
 
 **XP-002 resolved (IU-60):** CP-19 `an ka` — `IndicSandhi` drops dental *n* before space + isnx consonant (`an ka` → `a ka`), matching custom `LineConversion`. Row stays in the corpus with an empty divergence column.
 
-**IU-GAP-002 / [#116](https://github.com/HKdAlex/BBText/issues/116):** `e`/`ai` vowelsign bytes (`0x65`/`0x45`) after a letterform — CP-22–CP-25 (`dharma-kṣetre`, `kṣetre`, `caitanya`, `caiva`) NFC-match. Remaining production divergences (`ṁ`/`oṁ`, visarga+space) are **not** ledgered here; they are [IU-GAP-003 / #117](https://github.com/HKdAlex/BBText/issues/117).
+**IU-GAP-003 / [#117](https://github.com/HKdAlex/BBText/issues/117):** BBT anusvara is IAST `ṁ` (U+1E41) → Devanagari `ं`, not `ṃ` and not candrabindu. Decode maps `M`→`ṁ` and restores `h` in splice-anusvara `haM`. Unicode-path `IndicSandhi` drops the space after coda `ś`/`ṣ`/`s` (`pāṇḍavāś caiva`). CP-20/21 retargeted to `saṁ`; CP-27–CP-30 (`oṁ`, `haṁ`, `vande 'haṁ`, `pāṇḍavāś caiva`) NFC-match. Not ledgered.
 
 Do **not** “fix” remaining diffs by calling `prepareIAST` on the custom path.
 Do **not** drop corpus rows.

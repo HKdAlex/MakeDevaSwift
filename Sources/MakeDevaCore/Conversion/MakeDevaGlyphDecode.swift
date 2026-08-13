@@ -23,6 +23,10 @@ import Foundation
 /// vowelsign bytes `0x7B`/`0x7C`/`0x7D`, not splice and not repha (`0x52`).
 /// `e`/`ai` after a letterform (`kSetre` → `BA 61 65 …`) are trailing `0x65`/`0x45`.
 ///
+/// Anusvara `0x4D` (`M`) often sits at the FontTables splice (`h` + `M` + D030), not as a
+/// standalone unmatched byte. Decode keeps the letterform (`haM`, not `M`) and maps `M` to
+/// IAST `ṁ` (U+1E41, BBT anusvara — not `ṃ` U+1E43 and not candrabindu).
+///
 /// Does **not** call `prepareIAST` (ADR-23: no shared prep on the custom path).
 public enum MakeDevaGlyphDecode {
     /// Decode RM Devanagari glyph codes to Unicode Devanagari.
@@ -161,6 +165,24 @@ public enum MakeDevaGlyphDecode {
                     // Inherent *a* unless C already emitted virama (splice vowel " ").
                     syllable.append("a")
                 }
+                if let mark = match.anusvara {
+                    syllable.append(mark)
+                } else if i + consumed < glyphs.count {
+                    let next = glyphs[i + consumed]
+                    let nextStartsCluster = clusterMatch(glyphs, at: i + consumed) != nil
+                    if !nextStartsCluster {
+                        switch next {
+                        case UInt8(ascii: "M"):
+                            syllable.append("M")
+                            consumed += 1
+                        case UInt8(ascii: "*"):
+                            syllable.append("w")
+                            consumed += 1
+                        default:
+                            break
+                        }
+                    }
+                }
                 out.append(syllable)
                 i += consumed
                 continue
@@ -229,6 +251,7 @@ public enum MakeDevaGlyphDecode {
         let vowel: Character?
         let vowelClass: VowelClass
         let consumed: Int
+        let anusvara: Character?
     }
 
     private struct ReverseEntry {
@@ -331,12 +354,20 @@ public enum MakeDevaGlyphDecode {
         var j = i + entry.prefix.count
         var vowel: Character?
         var vowelClass = entry.vowelClass
+        var anusvara: Character?
 
         if entry.hasSplice {
             if j < glyphs.count, let v = spliceVowel[glyphs[j]] {
                 vowel = v
                 j += 1
                 if v != " " { vowelClass = .fixed(v) }
+            } else if j < glyphs.count,
+                      glyphs[j] == UInt8(ascii: "M") || glyphs[j] == UInt8(ascii: "*")
+            {
+                // C inserts anusvara at the FontTables splice (`68 4D 22` for haṁ).
+                anusvara = glyphs[j] == UInt8(ascii: "M") ? "M" : "w"
+                j += 1
+                if case .inherentA = entry.vowelClass { vowel = "a" }
             } else if case .inherentA = entry.vowelClass {
                 vowel = "a"
             }
@@ -371,7 +402,8 @@ public enum MakeDevaGlyphDecode {
             transliteration: entry.transliteration,
             vowel: resolved,
             vowelClass: vowelClass,
-            consumed: j - i
+            consumed: j - i,
+            anusvara: anusvara
         )
     }
 
@@ -435,7 +467,7 @@ public enum MakeDevaGlyphDecode {
         "a": "a", "A": "ā", "i": "i", "I": "ī", "u": "u", "U": "ū",
         "R": "ṛ", "Y": "ṝ", "L": "ḷ",
         "e": "e", "E": "ai", "o": "o", "O": "au",
-        "M": "ṃ", "H": "ḥ", "w": "m̐",
+        "M": "ṁ", "H": "ḥ", "w": "m̐",
         "k": "k", "K": "kh", "g": "g", "G": "gh", "F": "ṅ",
         "c": "c", "C": "ch", "j": "j", "J": "jh", "W": "ñ",
         "q": "ṭ", "Q": "ṭh", "x": "ḍ", "X": "ḍh", "N": "ṇ",
