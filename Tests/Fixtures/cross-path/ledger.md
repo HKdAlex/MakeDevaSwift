@@ -1,0 +1,12 @@
+# Cross-path divergence ledger (IU-59)
+
+Documented inequalities on `Tests/Fixtures/cross-path/corpus.tsv`. Rows stay in the corpus (anti-shrink). Unexplained diffs remain test failures (ADR-20 / ADR-24).
+
+| ID | Corpus | Unicode path | Custom path | Why not NFC-equal | Follow-up |
+|----|--------|--------------|-------------|-------------------|-----------|
+| XP-001 | CP-18 `so'ham` | `सोहम्` (ICU drops `'` and writes final म्) | `सोहम` (apostrophe kept in glyphs; reconstruct includes inherent *a*) | Script difference, not ignorable NFC | [IU-GAP-001 #111](https://github.com/HKdAlex/BBText/issues/111) |
+| XP-002 | CP-19 `an ka` | `अन् क` (ICU keeps *n*) | `अ क` (`LineConversion` drops *n* before space — MakeDeva isnx) | Custom-path boundary rule, not Unicode prep (ADR-23) | [#60](https://github.com/HKdAlex/BBText/issues/60) IU-60 |
+
+Do **not** “fix” these by calling `prepareIAST` on the custom path.
+Do **not** drop the corpus rows.
+Do **not** treat `k a` as a join golden.

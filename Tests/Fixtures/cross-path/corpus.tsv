@@ -1,0 +1,28 @@
+# id	pattern	source	iast	divergence
+# CrossPathCorpus (IU-59) — committed anti-shrink list. Do not delete rows to make tests green.
+# Contract: NFC( ICU(prepare(ℓ)) ) ≡ NFC( decodeUnicode(LineConversion(ingest(ℓ))) )
+# Empty divergence = must match. Non-empty = documented in ledger.md (still counted).
+# No prepareIAST on the custom path (ADR-23). No spaced-IAST join goldens.
+# pattern ∈ {continuous-IAST, word-boundary, avagraha, isnx}
+# source ∈ {synthetic, unicode-golden}
+CP-01	continuous-IAST	unicode-golden	ka	
+CP-02	continuous-IAST	unicode-golden	rāma	
+CP-03	continuous-IAST	unicode-golden	uvāca	
+CP-04	continuous-IAST	unicode-golden	kṛṣṇa	
+CP-05	continuous-IAST	unicode-golden	namo	
+CP-06	continuous-IAST	unicode-golden	eva	
+CP-07	continuous-IAST	unicode-golden	dharma	
+CP-08	continuous-IAST	unicode-golden	śrī	
+CP-09	continuous-IAST	unicode-golden	pāṇḍava	
+CP-10	continuous-IAST	unicode-golden	dhṛtarāṣṭra	
+CP-11	continuous-IAST	synthetic	a	
+CP-12	continuous-IAST	synthetic	i	
+CP-13	continuous-IAST	synthetic	e	
+CP-14	continuous-IAST	synthetic	o	
+CP-15	continuous-IAST	synthetic	ki	
+CP-16	word-boundary	synthetic	ka ma	
+CP-17	word-boundary	synthetic	namaḥ	
+CP-18	avagraha	synthetic	so'ham	XP-001
+CP-19	isnx	synthetic	an ka	XP-002
+CP-20	continuous-IAST	synthetic	saṃskṛta	
+CP-21	continuous-IAST	synthetic	saṃ	

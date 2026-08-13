@@ -32,7 +32,7 @@ struct MakeDevaGlyphDecodeTests {
     func reconstructSimpleASCII() {
         let samples = [
             "ka", "rAma", "uvAca", "kRSNa", "namo", "eva", "a", "i", "e", "o", "ka ma",
-            "dharma", "ki", "ZrI",
+            "dharma", "ki", "ZrI", "DR", "DRta",
         ]
         for s in samples {
             let glyphs = LineConversion.convertLine(s).glyphs
