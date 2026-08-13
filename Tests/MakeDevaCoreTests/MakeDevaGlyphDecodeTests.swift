@@ -35,6 +35,7 @@ struct MakeDevaGlyphDecodeTests {
             "dharma", "ki", "ZrI", "DR", "DRta", "m", "ham", "so'ham",
             "kSetre", "cEva", "cEtanya", "Darma-kSetre",
             "haM", "oM", "saM",
+            "ju", "Su", "arjuna", "madhusUdanaH", "kSudraM", "puMsaH",
         ]
         for s in samples {
             let glyphs = LineConversion.convertLine(s).glyphs
@@ -66,6 +67,19 @@ struct MakeDevaGlyphDecodeTests {
         #expect(MakeDevaUnicode.customPathUnicode("caiva") == MakeDevaUnicode.convertLine("caiva"))
         #expect(MakeDevaUnicode.customPathUnicode("caitanya") == MakeDevaUnicode.convertLine("caitanya"))
         #expect(MakeDevaUnicode.customPathUnicode("dharma-kṣetre") == MakeDevaUnicode.convertLine("dharma-kṣetre"))
+    }
+
+    @Test("decodeUnicode honors C u/U vowelsign after a letterform cluster")
+    func uAndUuVowelsignAfterClusterMatchesICU() {
+        #expect(MakeDevaGlyphDecode.reconstructMakeDevaASCII(LineConversion.convertLine("ju").glyphs) == "ju")
+        #expect(MakeDevaGlyphDecode.reconstructMakeDevaASCII(LineConversion.convertLine("arjuna").glyphs) == "arjuna")
+        #expect(MakeDevaGlyphDecode.reconstructMakeDevaASCII(LineConversion.convertLine("madhusUdanaH").glyphs) == "madhusUdanaH")
+        #expect(MakeDevaGlyphDecode.reconstructMakeDevaASCII(LineConversion.convertLine("kSudraM").glyphs) == "kSudraM")
+        #expect(MakeDevaGlyphDecode.reconstructMakeDevaASCII(LineConversion.convertLine("puMsaH").glyphs) == "puMsaH")
+        #expect(MakeDevaUnicode.customPathUnicode("arjuna") == MakeDevaUnicode.convertLine("arjuna"))
+        #expect(MakeDevaUnicode.customPathUnicode("madhusūdanaḥ") == MakeDevaUnicode.convertLine("madhusūdanaḥ"))
+        #expect(MakeDevaUnicode.customPathUnicode("kṣudraṁ") == MakeDevaUnicode.convertLine("kṣudraṁ"))
+        #expect(MakeDevaUnicode.customPathUnicode("puṁsaḥ") == MakeDevaUnicode.convertLine("puṁsaḥ"))
     }
 
     @Test("decodeUnicode honors C anusvara M as IAST ṁ (U+1E41)")
