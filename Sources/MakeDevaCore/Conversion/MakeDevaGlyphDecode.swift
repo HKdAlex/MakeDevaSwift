@@ -15,6 +15,9 @@ import Foundation
 /// glyph (`SyllableConversion` only emits bytes `> 0x20`). Inter-syllable `0x20` in the
 /// glyph buffer is a word space from `LineConversion`.
 ///
+/// `ṛ`/`ṝ`/`ḷ` after a no-splice `fonta` cluster (e.g. `D` → `44 61 7B`) are trailing
+/// vowelsign bytes `0x7B`/`0x7C`/`0x7D`, not splice and not repha (`0x52`).
+///
 /// Does **not** call `prepareIAST` (ADR-23: no shared prep on the custom path).
 public enum MakeDevaGlyphDecode {
     /// Decode RM Devanagari glyph codes to Unicode Devanagari.
@@ -108,6 +111,23 @@ public enum MakeDevaGlyphDecode {
                 var vowel = match.vowel
                 if match.vowelClass == .inherentA, vowel == "a" || vowel == nil {
                     (vowel, consumed) = applyAiafter(glyphs, at: i, consumed: consumed, vowel: vowel)
+                }
+                // fonta rows with no 0x20 splice (e.g. "D" = 0x44 0x61) emit ṛ/ṝ/ḷ as
+                // a following vowelsign (0x7B/0x7C/0x7D), not a splice byte.
+                if vowel == nil || vowel == "a", i + consumed < glyphs.count {
+                    switch glyphs[i + consumed] {
+                    case 0x7B:
+                        vowel = "R"
+                        consumed += 1
+                    case 0x7C:
+                        vowel = "Y"
+                        consumed += 1
+                    case 0x7D:
+                        vowel = "L"
+                        consumed += 1
+                    default:
+                        break
+                    }
                 }
                 var cons = match.transliteration
                 if i + consumed < glyphs.count, glyphs[i + consumed] == UInt8(ascii: "R"),

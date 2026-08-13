@@ -46,6 +46,20 @@ public enum MakeDevaUnicode {
         MakeDevaGlyphDecode.decodeUnicode(glyphs)
     }
 
+    /// Custom path for a Unicode IAST line (IU-59): ingest → `LineConversion` → decode.
+    ///
+    /// Does **not** call `prepareIAST` (ADR-23).
+    public static func customPathUnicode(_ iast: String) -> String {
+        let ascii = MakeDevaIngest.iastToMakeDevaASCII(iast)
+        let glyphs = LineConversion.convertLine(ascii).glyphs
+        return decodeUnicode(glyphs)
+    }
+
+    /// NFC equality used by the cross-path oracle (documented ignorable equivalence).
+    public static func unicodeEquivalent(_ a: String, _ b: String) -> Bool {
+        a.precomposedStringWithCanonicalMapping == b.precomposedStringWithCanonicalMapping
+    }
+
     // MARK: - Private
 
     private static func transliterateToUnicodeDevanagari(_ iast: String) -> String {
