@@ -32,7 +32,7 @@ struct MakeDevaGlyphDecodeTests {
     func reconstructSimpleASCII() {
         let samples = [
             "ka", "rAma", "uvAca", "kRSNa", "namo", "eva", "a", "i", "e", "o", "ka ma",
-            "dharma", "ki", "ZrI", "DR", "DRta",
+            "dharma", "ki", "ZrI", "DR", "DRta", "m", "ham", "so'ham",
         ]
         for s in samples {
             let glyphs = LineConversion.convertLine(s).glyphs
@@ -45,6 +45,15 @@ struct MakeDevaGlyphDecodeTests {
     func kaCrossCheck() {
         let glyphs = LineConversion.convertLine("ka").glyphs
         #expect(MakeDevaUnicode.decodeUnicode(glyphs) == "क")
+    }
+
+    @Test("decodeUnicode honors C virama comma on vowelless m")
+    func viramaFinalMMatchesICU() {
+        let glyphs = LineConversion.convertLine("m").glyphs
+        #expect(MakeDevaGlyphDecode.reconstructMakeDevaASCII(glyphs) == "m")
+        #expect(MakeDevaUnicode.decodeUnicode(glyphs) == MakeDevaUnicode.convertLine("m"))
+        #expect(MakeDevaUnicode.customPathUnicode("so'ham") == MakeDevaUnicode.convertLine("so'ham"))
+        #expect(MakeDevaUnicode.customPathUnicode("so'ham") == "सोहम्")
     }
 
     @Test("ASCII→IAST maps MakeDeva alphabet")
