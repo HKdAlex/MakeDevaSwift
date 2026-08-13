@@ -15,6 +15,9 @@ struct MakeDevaUnicodeTests {
         #expect(MakeDevaUnicode.prepareIAST("an ka") == "a ka")
         #expect(MakeDevaUnicode.prepareIAST("pāṇḍavāś caiva") == "pāṇḍavāścaiva")
         #expect(MakeDevaUnicode.prepareIAST("ka ma") == "ka ma")
+        #expect(MakeDevaUnicode.prepareIAST("viṣīdantam idaṁ") == "viṣīdantamidaṁ")
+        #expect(MakeDevaUnicode.prepareIAST("śrī-bhagavān uvāca") == "śrī-bhagavānuvāca")
+        #expect(MakeDevaUnicode.prepareIAST("idaṁ vākyam") == "idaṁ vākyam")
     }
 
     // MARK: - ICU Latin-Devanagari (UNI-08)

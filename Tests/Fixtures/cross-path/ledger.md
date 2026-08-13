@@ -12,7 +12,9 @@ Documented inequalities on `Tests/Fixtures/cross-path/corpus.tsv`. Rows stay in 
 
 **IU-GAP-003 / [#117](https://github.com/HKdAlex/BBText/issues/117):** BBT anusvara is IAST `ṁ` (U+1E41) → Devanagari `ं`, not `ṃ` and not candrabindu. Decode maps `M`→`ṁ` and restores `h` in splice-anusvara `haM`. Unicode-path `IndicSandhi` drops the space after coda `ś`/`ṣ`/`s` (`pāṇḍavāś caiva`). CP-20/21 retargeted to `saṁ`; CP-27–CP-30 (`oṁ`, `haṁ`, `vande 'haṁ`, `pāṇḍavāś caiva`) NFC-match. Not ledgered.
 
-**IU-GAP-004 Class A / [#120](https://github.com/HKdAlex/BBText/issues/120):** trailing C vowelsign `u`/`ū` (`0x75`/`0x55`) after no-splice `fonta` clusters. CP-31–CP-34 (`madhusūdanaḥ`, `arjuna`, `kṣudraṁ`, `puṁsaḥ`) NFC-match. Floor 34. Word-space / hyphen glue (B/C) stays on #120 — not ledgered.
+**IU-GAP-004 Class A / [#120](https://github.com/HKdAlex/BBText/issues/120):** trailing C vowelsign `u`/`ū` (`0x75`/`0x55`) after no-splice `fonta` clusters. CP-31–CP-34 (`madhusūdanaḥ`, `arjuna`, `kṣudraṁ`, `puṁsaḥ`) NFC-match. Floor 34.
+
+**IU-GAP-004 Class B/C / [#120](https://github.com/HKdAlex/BBText/issues/120):** Unicode-path coda-nasal + vowel space-drop (`viṣīdantam idaṁ`, `śrī-bhagavān uvāca`). CP-35–CP-36. Floor 36. Anusvara `ṁ` is not coda `m`. Not `k a`. `kī` decode leftover is a follow-up.
 
 Do **not** “fix” remaining diffs by calling `prepareIAST` on the custom path.
 Do **not** drop corpus rows.

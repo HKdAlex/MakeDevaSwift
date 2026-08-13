@@ -1,7 +1,7 @@
 # iast_in	iast_out	rule
 # Structural prep (IU-60) — IndicSandhi.closeSpaces / MakeDevaUnicode.prepareIAST
 # Authority: MakeDeva C isnx/convertline, not HKIndic pairwise joins.
-# Do not add k a → ka (unproven join).
+# Do not add k a → ka (unproven join). Coda-nasal+vowel glue is convertline, not HKIndic.
 an ka	a ka	isnx
 an ga	a ga	isnx
 an kha	a kha	isnx
@@ -21,3 +21,8 @@ pāṇḍavāś caiva	pāṇḍavāścaiva	coda-sibilant
 āś ca	āśca	coda-sibilant
 as ka	aska	coda-sibilant-s
 ka ma	ka ma	no-sibilant-glue
+viṣīdantam idaṁ	viṣīdantamidaṁ	coda-nasal-vowel
+bhagavān uvāca	bhagavānuvāca	coda-nasal-vowel
+śrī-bhagavān uvāca	śrī-bhagavānuvāca	coda-nasal-vowel
+idaṁ vākyam	idaṁ vākyam	anusvara-not-coda-m
+namaḥ iti	namaḥ iti	visarga-keep-space
