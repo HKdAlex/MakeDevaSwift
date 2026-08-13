@@ -1,0 +1,19 @@
+# iast_in	iast_out	rule
+# Structural prep (IU-60) — IndicSandhi.closeSpaces / MakeDevaUnicode.prepareIAST
+# Authority: MakeDeva C isnx/convertline, not HKIndic pairwise joins.
+# Do not add k a → ka (unproven join).
+an ka	a ka	isnx
+an ga	a ga	isnx
+an kha	a kha	isnx
+an śa	a śa	isnx
+an ṭa	an ṭa	not-isnx
+an ta	an ta	not-isnx
+an ma	an ma	not-isnx
+aṇ ka	aṇ ka	not-dental-n
+nka	nka	no-gap
+k a	k a	no-join
+n m k a	n m k a	n-before-m
+k  g	k g	whitespace
+so 'ham	so'ham	avagraha
+so'ham	so'ham	avagraha-already
+rāma  uvāca	rāma uvāca	whitespace

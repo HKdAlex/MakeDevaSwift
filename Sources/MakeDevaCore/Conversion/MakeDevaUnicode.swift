@@ -26,9 +26,9 @@ public enum MakeDevaUnicode {
 
     /// Structural prep for the **Unicode** branch only (ADR-23).
     ///
-    /// Delegates to `IndicSandhi.closeSpaces` — whitespace collapse only ([#56](https://github.com/HKdAlex/BBText/issues/56)).
-    /// MakeDeva-derived boundary rules are deferred; no HKIndic pairwise joins.
-    /// Does not apply ICU pre-normalization or script conversion.
+    /// Delegates to `IndicSandhi.closeSpaces` — whitespace collapse, MakeDeva `isnx`
+    /// *n*-drop, and avagraha space-drop ([#60](https://github.com/HKdAlex/BBText/issues/60)).
+    /// No HKIndic pairwise joins. Does not apply ICU pre-normalization or script conversion.
     public static func prepareIAST(_ line: String) -> String {
         IndicSandhi.closeSpaces(in: line, script: .devanagari)
     }
