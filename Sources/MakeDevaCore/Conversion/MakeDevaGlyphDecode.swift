@@ -22,6 +22,8 @@ import Foundation
 /// `ṛ`/`ṝ`/`ḷ` after a no-splice `fonta` cluster (e.g. `D` → `44 61 7B`) are trailing
 /// vowelsign bytes `0x7B`/`0x7C`/`0x7D`, not splice and not repha (`0x52`).
 /// `e`/`ai` after a letterform (`kSetre` → `BA 61 65 …`) are trailing `0x65`/`0x45`.
+/// `u`/`ū` after a no-splice `fonta` cluster (`ju` → `6A 61 75`, `sU` → `73 24 61 55`)
+/// are trailing `0x75`/`0x55`.
 ///
 /// Anusvara `0x4D` (`M`) often sits at the FontTables splice (`h` + `M` + D030), not as a
 /// standalone unmatched byte. Decode keeps the letterform (`haM`, not `M`) and maps `M` to
@@ -123,8 +125,11 @@ public enum MakeDevaGlyphDecode {
                 }
                 // fonta rows with no 0x20 splice (e.g. "D" → `44 61 7B`) emit ṛ/ṝ/ḷ as
                 // a following vowelsign (0x7B/0x7C/0x7D), not a splice byte.
-                // The same pattern applies to e (0x65) and ai/E (0x45): C writes them
-                // after the letterform (`kSetre` → `BA 61 65 …`), not at the 0x20 splice.
+                // The same pattern applies to e (0x65), ai/E (0x45), u (0x75), and
+                // ū/U (0x55): C writes them after the letterform (`ju` → `6A 61 75`,
+                // `sU` → `73 24 61 55`), not at the 0x20 splice. fontu/fontuu rows
+                // that already embed 0x75/0x55 (`du` → `E4 75 22`) keep vowel `u`/`U`
+                // and skip this branch.
                 if vowel == nil || vowel == "a", i + consumed < glyphs.count {
                     let next = glyphs[i + consumed]
                     let nextStartsCluster = clusterMatch(glyphs, at: i + consumed) != nil
@@ -143,6 +148,12 @@ public enum MakeDevaGlyphDecode {
                         consumed += 1
                     case 0x45 where !nextStartsCluster:
                         vowel = "E"
+                        consumed += 1
+                    case 0x75 where !nextStartsCluster:
+                        vowel = "u"
+                        consumed += 1
+                    case 0x55 where !nextStartsCluster:
+                        vowel = "U"
                         consumed += 1
                     default:
                         break
