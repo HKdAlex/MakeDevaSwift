@@ -6,12 +6,13 @@ struct MakeDevaUnicodeTests {
 
     // MARK: - Structural prep (Unicode branch only)
 
-    @Test("prepareIAST collapses whitespace only (no pairwise joining)")
+    @Test("prepareIAST collapses whitespace and does not pairwise-join")
     func prepareIASTWhitespaceOnly() {
         #expect(MakeDevaUnicode.prepareIAST("k  \t  g") == "k g")
         #expect(MakeDevaUnicode.prepareIAST("k g") == "k g")
         #expect(MakeDevaUnicode.prepareIAST("k a") == "k a")
         #expect(MakeDevaUnicode.prepareIAST("n m k a") == "n m k a")
+        #expect(MakeDevaUnicode.prepareIAST("an ka") == "a ka")
     }
 
     // MARK: - ICU Latin-Devanagari (UNI-08)
