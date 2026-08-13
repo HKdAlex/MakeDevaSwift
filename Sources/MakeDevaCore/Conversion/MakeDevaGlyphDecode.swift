@@ -15,6 +15,10 @@ import Foundation
 /// glyph (`SyllableConversion` only emits bytes `> 0x20`). Inter-syllable `0x20` in the
 /// glyph buffer is a word space from `LineConversion`.
 ///
+/// Trailing `0x2C` (`,`) after a letterform is C virama (`vowelsign` when the syllable
+/// vowel is space). Decode drops inherent *a* so `m` + virama → `म्`, matching ICU.
+/// Clusters that embed `0x2C` (e.g. `dharma`) are consumed by FontTables reverse first.
+///
 /// `ṛ`/`ṝ`/`ḷ` after a no-splice `fonta` cluster (e.g. `D` → `44 61 7B`) are trailing
 /// vowelsign bytes `0x7B`/`0x7C`/`0x7D`, not splice and not repha (`0x52`).
 ///
@@ -142,11 +146,23 @@ public enum MakeDevaGlyphDecode {
                     pendingI = false
                 } else if let v = vowel, v != " " {
                     syllable.append(v)
-                } else if match.vowelClass == .inherentA {
+                } else if match.vowelClass == .inherentA, vowel != " " {
+                    // Inherent *a* unless C already emitted virama (splice vowel " ").
                     syllable.append("a")
                 }
                 out.append(syllable)
                 i += consumed
+                continue
+            }
+
+            // C `vowelsign=','` (devaline.c) after a letterform: dead consonant, not punctuation.
+            // Punctuation comma is encoded as `/` (handled above). FontTables clusters that
+            // include 0x2C are consumed by `clusterMatch` first.
+            if b == UInt8(ascii: ",") {
+                if out.last == "a" {
+                    out.removeLast()
+                }
+                i += 1
                 continue
             }
 

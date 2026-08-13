@@ -54,6 +54,7 @@ let deva = MakeDevaUnicode.decodeUnicode(glyphs)  // → कृष्ण
 | Unicode rendering | MakeDeva ASCII → IAST → ICU `Latin-Devanagari` |
 
 `0x20` inside FontTables code arrays is a vowel-sign splice point (not emitted).
+Trailing `0x2C` after a letterform is C virama (not Latin comma).
 Goldens: `Tests/Fixtures/glyph-decode/cases.tsv`
 
 Cross-path E2E (`ICU(prepare(ℓ)) ≡ decodeUnicode(customPath(ℓ))`) is IU-59.

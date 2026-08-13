@@ -4,7 +4,9 @@ Documented inequalities on `Tests/Fixtures/cross-path/corpus.tsv`. Rows stay in 
 
 | ID | Corpus | Unicode path | Custom path | Why not NFC-equal | Follow-up |
 |----|--------|--------------|-------------|-------------------|-----------|
-| XP-001 | CP-18 `so'ham` | `सोहम्` (ICU drops `'` and writes final म्) | `सोहम` (apostrophe kept in glyphs; reconstruct includes inherent *a*) | Script difference, not ignorable NFC | [IU-GAP-001 #111](https://github.com/HKdAlex/BBText/issues/111) |
+| *(none open)* | | | | | |
+
+**XP-001 resolved (IU-GAP-001 / [#111](https://github.com/HKdAlex/BBText/issues/111)):** CP-18 `so'ham` — `decodeUnicode` now honors C virama comma (`0x2C`) after the `ma` letterform, reconstructing `so'ham` → ICU `सोहम्`. Same as Unicode `convertLine`. Row stays with an empty divergence column.
 
 **XP-002 resolved (IU-60):** CP-19 `an ka` — `IndicSandhi` drops dental *n* before space + isnx consonant (`an ka` → `a ka`), matching custom `LineConversion`. Row stays in the corpus with an empty divergence column.
 
