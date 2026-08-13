@@ -35,6 +35,29 @@ let prepared = MakeDevaUnicode.prepareIAST("k  g") // → "k g"
 
 Goldens: `Tests/Fixtures/unicode-devanagari/cases.tsv`
 
+### Glyph → Unicode decode (IU-58)
+
+Custom-path RM Devanagari **glyph bytes** (from `LineConversion`) decode to Unicode
+Devanagari without calling `prepareIAST` (ADR-23).
+
+```swift
+let glyphs = LineConversion.convertLine("kRSNa").glyphs
+let deva = MakeDevaUnicode.decodeUnicode(glyphs)  // → कृष्ण
+```
+
+**Mapping ownership**
+
+| Layer | Authority |
+|-------|-----------|
+| Glyph clusters | Swift `FontTables` ← `devaline.c` `fontu`/`fonta`/`fontc`/… |
+| Not used | `devaconv.c` `olddeva[]` (legacy *old* font, different encoding) |
+| Unicode rendering | MakeDeva ASCII → IAST → ICU `Latin-Devanagari` |
+
+`0x20` inside FontTables code arrays is a vowel-sign splice point (not emitted).
+Goldens: `Tests/Fixtures/glyph-decode/cases.tsv`
+
+Cross-path E2E (`ICU(prepare(ℓ)) ≡ decodeUnicode(customPath(ℓ))`) is IU-59.
+
 ### Custom path
 
 `LineConversion` keeps C parity. Unicode input files are converted at ingest with
@@ -62,4 +85,5 @@ swift test --filter MakeDevaParityTests        # full C parity batch (minutes)
 
 [BBText engine unification #22](https://github.com/HKdAlex/BBText/issues/22) ·
 Unicode path [#26](https://github.com/HKdAlex/BBText/issues/26) ·
+Glyph decode [#58](https://github.com/HKdAlex/BBText/issues/58) ·
 Wayfinder [#49](https://github.com/HKdAlex/BBText/issues/49)
