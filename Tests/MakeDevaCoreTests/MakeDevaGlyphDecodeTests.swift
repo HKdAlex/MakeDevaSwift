@@ -36,6 +36,7 @@ struct MakeDevaGlyphDecodeTests {
             "kSetre", "cEva", "cEtanya", "Darma-kSetre",
             "haM", "oM", "saM",
             "ju", "Su", "arjuna", "madhusUdanaH", "kSudraM", "puMsaH",
+            "kI", "kIrti", "kL",
         ]
         for s in samples {
             let glyphs = LineConversion.convertLine(s).glyphs
@@ -80,6 +81,16 @@ struct MakeDevaGlyphDecodeTests {
         #expect(MakeDevaUnicode.customPathUnicode("madhusūdanaḥ") == MakeDevaUnicode.convertLine("madhusūdanaḥ"))
         #expect(MakeDevaUnicode.customPathUnicode("kṣudraṁ") == MakeDevaUnicode.convertLine("kṣudraṁ"))
         #expect(MakeDevaUnicode.customPathUnicode("puṁsaḥ") == MakeDevaUnicode.convertLine("puṁsaḥ"))
+    }
+
+    @Test("decodeUnicode honors C wide long-ī aiafter rewritten to L (0x4C)")
+    func wideLongIAiafterLMatchesICU() {
+        #expect(MakeDevaGlyphDecode.reconstructMakeDevaASCII(LineConversion.convertLine("kI").glyphs) == "kI")
+        #expect(MakeDevaGlyphDecode.reconstructMakeDevaASCII(LineConversion.convertLine("kIrti").glyphs) == "kIrti")
+        #expect(MakeDevaGlyphDecode.reconstructMakeDevaASCII(LineConversion.convertLine("kL").glyphs) == "kL")
+        #expect(MakeDevaUnicode.customPathUnicode("kī") == MakeDevaUnicode.convertLine("kī"))
+        #expect(MakeDevaUnicode.customPathUnicode("kīrti") == MakeDevaUnicode.convertLine("kīrti"))
+        #expect(MakeDevaUnicode.customPathUnicode("kḷ") == MakeDevaUnicode.convertLine("kḷ"))
     }
 
     @Test("decodeUnicode honors C anusvara M as IAST ṁ (U+1E41)")

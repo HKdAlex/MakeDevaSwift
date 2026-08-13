@@ -29,8 +29,8 @@ import MakeDevaCore
 // Full line: whitespace prep + ICU Latin-Devanagari
 let deva = MakeDevaUnicode.convertLine("kṛṣṇa")   // → कृष्ण
 
-// Prep only (IAST → IAST), Unicode branch — whitespace collapse only
-let prepared = MakeDevaUnicode.prepareIAST("k  g") // → "k g"
+// Prep only (IAST → IAST), Unicode branch — IndicSandhi (isnx, coda glue, avagraha)
+let prepared = MakeDevaUnicode.prepareIAST("k  g") // → "kg" (coda+consonant glue)
 ```
 
 Goldens: `Tests/Fixtures/unicode-devanagari/cases.tsv`

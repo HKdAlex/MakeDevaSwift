@@ -23,7 +23,8 @@ import Foundation
 /// vowelsign bytes `0x7B`/`0x7C`/`0x7D`, not splice and not repha (`0x52`).
 /// `e`/`ai` after a letterform (`kSetre` → `BA 61 65 …`) are trailing `0x65`/`0x45`.
 /// `u`/`ū` after a no-splice `fonta` cluster (`ju` → `6A 61 75`, `sU` → `73 24 61 55`)
-/// are trailing `0x75`/`0x55`.
+/// are trailing `0x75`/`0x55`. Wide long-ī after a wide letterform (`kI` → `6B 28 4C`)
+/// is C `aiafter` rewritten from `'I'` to `'L'` (`0x4C`); ḷ vowelsign is `0x7D`.
 ///
 /// Anusvara `0x4D` (`M`) often sits at the FontTables splice (`h` + `M` + D030), not as a
 /// standalone unmatched byte. Decode keeps the letterform (`haM`, not `M`) and maps `M` to
@@ -448,6 +449,12 @@ public enum MakeDevaGlyphDecode {
             }
         }
         if glyphs[k] == 0x49, clusterMatch(glyphs, at: k) == nil {
+            return ("I", consumed + 1)
+        }
+        // C `convertsyllable` (devaline.c 1179–1186): when aiafter is ī/`I` and the
+        // remaining FontTables suffix width is ≥ 150, rewrite aiafter to `'L'` (`0x4C`)
+        // — the wide vertical-bar ī glyph, not ḷ. ḷ vowelsign is `0x7D` (`kḷ` → `6B 7D 28`).
+        if glyphs[k] == 0x4C, clusterMatch(glyphs, at: k) == nil {
             return ("I", consumed + 1)
         }
         return (vowel ?? "a", consumed)
