@@ -26,6 +26,12 @@ import Foundation
 /// are trailing `0x75`/`0x55`. Wide long-ī after a wide letterform (`kI` → `6B 28 4C`)
 /// is C `aiafter` rewritten from `'I'` to `'L'` (`0x4C`); ḷ vowelsign is `0x7D`.
 ///
+/// C `rbefore` is glyph `R` (`0x52`) at the FontTables splice (`rda` → `64 52 22`) or
+/// collapsed with anusvara to `'<'` (`0x3C`) / `'>'` (`0x3E`) / `'='` (`0x3D`)
+/// (devaline.c 1060–1072). `yafter` emits `Y` `a` (`0x59 0x61`). Prefixed `i` (`0x69`)
+/// applies to the vowel-bearing cluster, not a preceding fontc half-consonant
+/// (`nti` → `69 6E 74 61`).
+///
 /// Anusvara `0x4D` (`M`) often sits at the FontTables splice (`h` + `M` + D030), not as a
 /// standalone unmatched byte. Decode keeps the letterform (`haM`, not `M`) and maps `M` to
 /// IAST `ṁ` (U+1E41, BBT anusvara — not `ṃ` U+1E43 and not candrabindu).
@@ -44,6 +50,7 @@ public enum MakeDevaGlyphDecode {
         var out = ""
         var i = 0
         var pendingI = false
+        var pendingHalfCons = ""
 
         while i < glyphs.count {
             let b = glyphs[i]
@@ -118,6 +125,27 @@ public enum MakeDevaGlyphDecode {
                 continue
             }
 
+            // C `yafter` (devaline.c): extra `Y` `a` (`0x59 0x61`) after a cluster with code==0.
+            if b == UInt8(ascii: "Y"), i + 1 < glyphs.count, glyphs[i + 1] == UInt8(ascii: "a") {
+                var consumed = 2
+                var vowel: Character? = "a"
+                (vowel, consumed) = applyAiafter(glyphs, at: i, consumed: consumed, vowel: vowel)
+                emitCluster(
+                    cons: "y",
+                    vowel: vowel,
+                    vowelClass: .inherentA,
+                    anusvara: nil,
+                    glyphs: glyphs,
+                    i: i,
+                    consumed: &consumed,
+                    pendingI: &pendingI,
+                    pendingHalfCons: &pendingHalfCons,
+                    out: &out
+                )
+                i += consumed
+                continue
+            }
+
             if let match = clusterMatch(glyphs, at: i) {
                 var consumed = match.consumed
                 var vowel = match.vowel
@@ -160,42 +188,18 @@ public enum MakeDevaGlyphDecode {
                         break
                     }
                 }
-                var cons = match.transliteration
-                if i + consumed < glyphs.count, glyphs[i + consumed] == UInt8(ascii: "R"),
-                   standaloneVowelMatch(glyphs, at: i + consumed) == nil
-                {
-                    cons = "r" + cons
-                    consumed += 1
-                }
-                var syllable = cons
-                if pendingI {
-                    syllable.append("i")
-                    pendingI = false
-                } else if let v = vowel, v != " " {
-                    syllable.append(v)
-                } else if match.vowelClass == .inherentA, vowel != " " {
-                    // Inherent *a* unless C already emitted virama (splice vowel " ").
-                    syllable.append("a")
-                }
-                if let mark = match.anusvara {
-                    syllable.append(mark)
-                } else if i + consumed < glyphs.count {
-                    let next = glyphs[i + consumed]
-                    let nextStartsCluster = clusterMatch(glyphs, at: i + consumed) != nil
-                    if !nextStartsCluster {
-                        switch next {
-                        case UInt8(ascii: "M"):
-                            syllable.append("M")
-                            consumed += 1
-                        case UInt8(ascii: "*"):
-                            syllable.append("w")
-                            consumed += 1
-                        default:
-                            break
-                        }
-                    }
-                }
-                out.append(syllable)
+                emitCluster(
+                    cons: match.transliteration,
+                    vowel: vowel,
+                    vowelClass: match.vowelClass,
+                    anusvara: match.anusvara,
+                    glyphs: glyphs,
+                    i: i,
+                    consumed: &consumed,
+                    pendingI: &pendingI,
+                    pendingHalfCons: &pendingHalfCons,
+                    out: &out
+                )
                 i += consumed
                 continue
             }
@@ -220,7 +224,122 @@ public enum MakeDevaGlyphDecode {
             i += 1
         }
 
+        if !pendingHalfCons.isEmpty {
+            if pendingI {
+                out.append(pendingHalfCons + "i")
+            } else {
+                out.append(pendingHalfCons)
+            }
+        }
+
         return out
+    }
+
+    /// C `rbefore` after the letterform: virama+`R`, leftover `R`, or collapsed
+    /// `'<'` (`0x3C` = repha+anusvara), `'>'` (`0x3E` = repha+E/I+M), `'='` (`0x3D`).
+    private static func consumeRephaMarks(
+        _ glyphs: [UInt8],
+        at i: Int,
+        consumed: Int,
+        cons: String,
+        vowel: Character?
+    ) -> (cons: String, vowel: Character?, consumed: Int, collapsedAnusvara: Character?) {
+        var cons = cons
+        var vowel = vowel
+        var consumed = consumed
+        var collapsedAnusvara: Character?
+
+        if i + consumed + 1 < glyphs.count,
+           glyphs[i + consumed] == 0x2C,
+           glyphs[i + consumed + 1] == UInt8(ascii: "R")
+        {
+            cons = "r" + cons
+            vowel = " "
+            consumed += 2
+        }
+
+        if i + consumed < glyphs.count,
+           glyphs[i + consumed] == UInt8(ascii: "R"),
+           standaloneVowelMatch(glyphs, at: i + consumed) == nil
+        {
+            cons = "r" + cons
+            consumed += 1
+        }
+
+        if i + consumed < glyphs.count {
+            switch glyphs[i + consumed] {
+            case 0x3C, 0x3E:
+                cons = "r" + cons
+                collapsedAnusvara = "M"
+                consumed += 1
+            case 0x3D:
+                cons = "r" + cons
+                consumed += 1
+            default:
+                break
+            }
+        }
+
+        return (cons, vowel, consumed, collapsedAnusvara)
+    }
+
+    /// Prefixed `i` (`0x69`) applies to the next vowel-bearing cluster, not a
+    /// preceding fontc half-consonant (`nti` → `69 6E 74 61`).
+    private static func emitCluster(
+        cons: String,
+        vowel: Character?,
+        vowelClass: VowelClass,
+        anusvara: Character?,
+        glyphs: [UInt8],
+        i: Int,
+        consumed: inout Int,
+        pendingI: inout Bool,
+        pendingHalfCons: inout String,
+        out: inout String
+    ) {
+        let marked = consumeRephaMarks(
+            glyphs,
+            at: i,
+            consumed: consumed,
+            cons: cons,
+            vowel: vowel
+        )
+        consumed = marked.consumed
+
+        if vowelClass == .none, pendingI {
+            pendingHalfCons += marked.cons
+            return
+        }
+
+        var syllable = pendingHalfCons + marked.cons
+        pendingHalfCons = ""
+        if pendingI {
+            syllable.append("i")
+            pendingI = false
+        } else if let v = marked.vowel, v != " " {
+            syllable.append(v)
+        } else if vowelClass == .inherentA, marked.vowel != " " {
+            syllable.append("a")
+        }
+        if let mark = anusvara ?? marked.collapsedAnusvara {
+            syllable.append(mark)
+        } else if i + consumed < glyphs.count {
+            let next = glyphs[i + consumed]
+            let nextStartsCluster = clusterMatch(glyphs, at: i + consumed) != nil
+            if !nextStartsCluster {
+                switch next {
+                case UInt8(ascii: "M"):
+                    syllable.append("M")
+                    consumed += 1
+                case UInt8(ascii: "*"):
+                    syllable.append("w")
+                    consumed += 1
+                default:
+                    break
+                }
+            }
+        }
+        out.append(syllable)
     }
 
     // MARK: - Standalone vowels (SyllableConversion.handleStandaloneVowel)
@@ -380,6 +499,26 @@ public enum MakeDevaGlyphDecode {
                 anusvara = glyphs[j] == UInt8(ascii: "M") ? "M" : "w"
                 j += 1
                 if case .inherentA = entry.vowelClass { vowel = "a" }
+            } else if j < glyphs.count, glyphs[j] == UInt8(ascii: "R") {
+                // C inserts repha at the FontTables splice (`64 52 22` for rda).
+                j += 1
+                if case .inherentA = entry.vowelClass { vowel = "a" }
+                guard matches(entry.suffix, glyphs: glyphs, at: j) else { return nil }
+                j += entry.suffix.count
+                let resolved: Character? = {
+                    switch vowelClass {
+                    case .inherentA: return vowel ?? "a"
+                    case .fixed(let v): return v
+                    case .none: return nil
+                    }
+                }()
+                return ClusterMatch(
+                    transliteration: "r" + entry.transliteration,
+                    vowel: resolved,
+                    vowelClass: vowelClass,
+                    consumed: j - i,
+                    anusvara: anusvara
+                )
             } else if case .inherentA = entry.vowelClass {
                 vowel = "a"
             }
