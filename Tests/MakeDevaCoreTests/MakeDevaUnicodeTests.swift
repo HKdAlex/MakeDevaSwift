@@ -8,10 +8,11 @@ struct MakeDevaUnicodeTests {
 
     @Test("prepareIAST collapses whitespace and does not pairwise-join")
     func prepareIASTWhitespaceOnly() {
-        #expect(MakeDevaUnicode.prepareIAST("k  \t  g") == "k g")
-        #expect(MakeDevaUnicode.prepareIAST("k g") == "k g")
+        #expect(MakeDevaUnicode.prepareIAST("k  \t  g") == "kg")
+        #expect(MakeDevaUnicode.prepareIAST("k g") == "kg")
         #expect(MakeDevaUnicode.prepareIAST("k a") == "k a")
-        #expect(MakeDevaUnicode.prepareIAST("n m k a") == "n m k a")
+        #expect(MakeDevaUnicode.prepareIAST("n m k a") == "nmk a")
+        #expect(MakeDevaUnicode.prepareIAST("tam ka") == "tamka")
         #expect(MakeDevaUnicode.prepareIAST("an ka") == "a ka")
         #expect(MakeDevaUnicode.prepareIAST("pāṇḍavāś caiva") == "pāṇḍavāścaiva")
         #expect(MakeDevaUnicode.prepareIAST("ka ma") == "ka ma")

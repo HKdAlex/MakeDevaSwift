@@ -14,7 +14,9 @@ Documented inequalities on `Tests/Fixtures/cross-path/corpus.tsv`. Rows stay in 
 
 **IU-GAP-004 Class A / [#120](https://github.com/HKdAlex/BBText/issues/120):** trailing C vowelsign `u`/`ū` (`0x75`/`0x55`) after no-splice `fonta` clusters. CP-31–CP-34 (`madhusūdanaḥ`, `arjuna`, `kṣudraṁ`, `puṁsaḥ`) NFC-match. Floor 34.
 
-**IU-GAP-004 Class B/C / [#120](https://github.com/HKdAlex/BBText/issues/120):** Unicode-path coda-nasal + vowel space-drop (`viṣīdantam idaṁ`, `śrī-bhagavān uvāca`). CP-35–CP-36. Floor 36. Anusvara `ṁ` is not coda `m`. Not `k a`. `kī` decode leftover is a follow-up.
+**IU-GAP-004 Class B/C / [#120](https://github.com/HKdAlex/BBText/issues/120):** Unicode-path coda-nasal + vowel space-drop (`viṣīdantam idaṁ`, `śrī-bhagavān uvāca`). CP-35–CP-36. Floor 36. Anusvara `ṁ` is not coda `m`. Not `k a`.
+
+**IU-GAP-005 / [#122](https://github.com/HKdAlex/BBText/issues/122):** decode honors C wide long-ī `aiafter` rewritten to `L` (`0x4C`; ḷ vowelsign is `0x7D`). Unicode-path coda-consonant space-drop (`tam ka`). CP-37–CP-39. Floor 39. `k a` stays unjoined. `k g` / `n m k a` stay off CrossPath (Rule F leftover / `k a` hard stop).
 
 Do **not** “fix” remaining diffs by calling `prepareIAST` on the custom path.
 Do **not** drop corpus rows.

@@ -6,21 +6,22 @@ an ka	a ka	isnx
 an ga	a ga	isnx
 an kha	a kha	isnx
 an śa	a śa	isnx
-an ṭa	an ṭa	not-isnx
-an ta	an ta	not-isnx
-an ma	an ma	not-isnx
-aṇ ka	aṇ ka	not-dental-n
+an ṭa	anṭa	coda-consonant
+an ta	anta	coda-consonant
+an ma	anma	coda-consonant
+aṇ ka	aṇka	coda-consonant
 nka	nka	no-gap
 k a	k a	no-join
-n m k a	n m k a	n-before-m
-k  g	k g	whitespace
+n m k a	nmk a	coda-consonant-then-k-a
+k  g	kg	coda-consonant
+tam ka	tamka	coda-consonant
 so 'ham	so'ham	avagraha
 so'ham	so'ham	avagraha-already
 rāma  uvāca	rāma uvāca	whitespace
-pāṇḍavāś caiva	pāṇḍavāścaiva	coda-sibilant
-āś ca	āśca	coda-sibilant
-as ka	aska	coda-sibilant-s
-ka ma	ka ma	no-sibilant-glue
+pāṇḍavāś caiva	pāṇḍavāścaiva	coda-consonant-sibilant
+āś ca	āśca	coda-consonant-sibilant
+as ka	aska	coda-consonant-s
+ka ma	ka ma	vowel-ended-keep-space
 viṣīdantam idaṁ	viṣīdantamidaṁ	coda-nasal-vowel
 bhagavān uvāca	bhagavānuvāca	coda-nasal-vowel
 śrī-bhagavān uvāca	śrī-bhagavānuvāca	coda-nasal-vowel
