@@ -4,7 +4,7 @@ import Testing
 
 struct MakeDevaCrossPathTests {
 
-    private static let corpusFloor = 47
+    private static let corpusFloor = 56
 
     @Test("ingest maps Unicode IAST to MakeDeva ASCII")
     func ingestKnownPairs() {

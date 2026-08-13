@@ -126,7 +126,12 @@ public enum MakeDevaGlyphDecode {
             }
 
             // C `yafter` (devaline.c): extra `Y` `a` (`0x59 0x61`) after a cluster with code==0.
+            // Same syllable as the preceding letterform (conjunct), not a new `ya`
+            // with inherent a — `khya` not `khaya` (`sāṅkhyānāṁ`).
             if b == UInt8(ascii: "Y"), i + 1 < glyphs.count, glyphs[i + 1] == UInt8(ascii: "a") {
+                if out.last == "a" {
+                    out.removeLast()
+                }
                 var consumed = 2
                 var vowel: Character? = "a"
                 (vowel, consumed) = applyAiafter(glyphs, at: i, consumed: consumed, vowel: vowel)

@@ -99,6 +99,7 @@ struct MakeDevaGlyphDecodeTests {
     func rephaAndPendingIClustersMatchICU() {
         let asciiSamples = [
             "janArdana", "indriyANi", "kAryaM", "kurvanti", "nti", "ndri", "kuryAM", "ry", "arTa",
+            "kya", "Kya", "sAFKyAnAM",
         ]
         for s in asciiSamples {
             let glyphs = LineConversion.convertLine(s).glyphs
@@ -113,6 +114,29 @@ struct MakeDevaGlyphDecodeTests {
         #expect(MakeDevaUnicode.customPathUnicode("kurvanti") == MakeDevaUnicode.convertLine("kurvanti"))
         #expect(MakeDevaUnicode.customPathUnicode("kuryāṁ") == MakeDevaUnicode.convertLine("kuryāṁ"))
         #expect(MakeDevaUnicode.customPathUnicode("artha") == MakeDevaUnicode.convertLine("artha"))
+        #expect(MakeDevaUnicode.customPathUnicode("kya") == MakeDevaUnicode.convertLine("kya"))
+        #expect(MakeDevaUnicode.customPathUnicode("khya") == MakeDevaUnicode.convertLine("khya"))
+        #expect(MakeDevaUnicode.customPathUnicode("sāṅkhyānāṁ") == MakeDevaUnicode.convertLine("sāṅkhyānāṁ"))
+    }
+
+    @Test("hyphen compounds NFC-match; leftover yafter is conjunct not khaya")
+    func hyphenCompoundsMatchICU() {
+        let samples = [
+            "dharma-kṣetre",
+            "jñāna-yogena",
+            "jñāna-yogena sāṅkhyānāṁ",
+            "karma-yogena",
+            "tad-arthaṁ",
+            "ahaṅkāra-vimūḍhātmā",
+            "mukta-saṅgaḥ",
+            "loka-saṅgraham",
+            "guṇa-karma-vibhāgayoḥ",
+        ]
+        for s in samples {
+            let u = MakeDevaUnicode.convertLine(s)
+            let c = MakeDevaUnicode.customPathUnicode(s)
+            #expect(MakeDevaUnicode.unicodeEquivalent(u, c), "\(s) unicode=\(u) custom=\(c)")
+        }
     }
 
     @Test("decodeUnicode honors C anusvara M as IAST ṁ (U+1E41)")
