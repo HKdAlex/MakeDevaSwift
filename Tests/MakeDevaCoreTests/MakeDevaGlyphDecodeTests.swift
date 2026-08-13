@@ -34,6 +34,7 @@ struct MakeDevaGlyphDecodeTests {
             "ka", "rAma", "uvAca", "kRSNa", "namo", "eva", "a", "i", "e", "o", "ka ma",
             "dharma", "ki", "ZrI", "DR", "DRta", "m", "ham", "so'ham",
             "kSetre", "cEva", "cEtanya", "Darma-kSetre",
+            "haM", "oM", "saM",
         ]
         for s in samples {
             let glyphs = LineConversion.convertLine(s).glyphs
@@ -67,11 +68,25 @@ struct MakeDevaGlyphDecodeTests {
         #expect(MakeDevaUnicode.customPathUnicode("dharma-kṣetre") == MakeDevaUnicode.convertLine("dharma-kṣetre"))
     }
 
+    @Test("decodeUnicode honors C anusvara M as IAST ṁ (U+1E41)")
+    func anusvaraMDotAboveMatchesICU() {
+        #expect(MakeDevaGlyphDecode.reconstructMakeDevaASCII(LineConversion.convertLine("haM").glyphs) == "haM")
+        #expect(MakeDevaGlyphDecode.reconstructMakeDevaASCII(LineConversion.convertLine("oM").glyphs) == "oM")
+        #expect(MakeDevaGlyphDecode.makeDevaASCIIToIAST("oM") == "oṁ")
+        #expect(MakeDevaGlyphDecode.makeDevaASCIIToIAST("haM") == "haṁ")
+        #expect(MakeDevaUnicode.customPathUnicode("oṁ") == MakeDevaUnicode.convertLine("oṁ"))
+        #expect(MakeDevaUnicode.customPathUnicode("oṁ") == "ओं")
+        #expect(MakeDevaUnicode.customPathUnicode("haṁ") == MakeDevaUnicode.convertLine("haṁ"))
+        #expect(MakeDevaUnicode.customPathUnicode("haṁ") == "हं")
+        #expect(MakeDevaUnicode.customPathUnicode("saṁ") == MakeDevaUnicode.convertLine("saṁ"))
+    }
+
     @Test("ASCII→IAST maps MakeDeva alphabet")
     func asciiToIAST() {
         #expect(MakeDevaGlyphDecode.makeDevaASCIIToIAST("kRSNa") == "kṛṣṇa")
         #expect(MakeDevaGlyphDecode.makeDevaASCIIToIAST("rAma") == "rāma")
         #expect(MakeDevaGlyphDecode.makeDevaASCIIToIAST("ZrI") == "śrī")
+        #expect(MakeDevaGlyphDecode.makeDevaASCIIToIAST("M") == "ṁ")
     }
 
     // MARK: - Helpers

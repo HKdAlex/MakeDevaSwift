@@ -13,6 +13,8 @@ struct MakeDevaUnicodeTests {
         #expect(MakeDevaUnicode.prepareIAST("k a") == "k a")
         #expect(MakeDevaUnicode.prepareIAST("n m k a") == "n m k a")
         #expect(MakeDevaUnicode.prepareIAST("an ka") == "a ka")
+        #expect(MakeDevaUnicode.prepareIAST("pāṇḍavāś caiva") == "pāṇḍavāścaiva")
+        #expect(MakeDevaUnicode.prepareIAST("ka ma") == "ka ma")
     }
 
     // MARK: - ICU Latin-Devanagari (UNI-08)

@@ -24,10 +24,14 @@ CP-16	word-boundary	synthetic	ka ma
 CP-17	word-boundary	synthetic	namaḥ	
 CP-18	avagraha	synthetic	so'ham	
 CP-19	isnx	synthetic	an ka	
-CP-20	continuous-IAST	synthetic	saṃskṛta	
-CP-21	continuous-IAST	synthetic	saṃ	
+CP-20	continuous-IAST	synthetic	saṁskṛta	
+CP-21	continuous-IAST	synthetic	saṁ	
 CP-22	continuous-IAST	corpus-shell	dharma-kṣetre	
 CP-23	continuous-IAST	corpus-shell	kṣetre	
 CP-24	continuous-IAST	corpus-shell	caitanya	
 CP-25	continuous-IAST	corpus-shell	caiva	
 CP-26	word-boundary	corpus-shell	dhṛtarāṣṭra uvāca	
+CP-27	continuous-IAST	corpus-shell	oṁ	
+CP-28	continuous-IAST	synthetic	haṁ	
+CP-29	avagraha	corpus-shell	vande 'haṁ	
+CP-30	word-boundary	corpus-shell	pāṇḍavāś caiva	
