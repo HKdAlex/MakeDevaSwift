@@ -4,7 +4,7 @@
 # Empty divergence = must match. Non-empty = documented in ledger.md (still counted).
 # No prepareIAST on the custom path (ADR-23). No spaced-IAST join goldens.
 # pattern ∈ {continuous-IAST, word-boundary, avagraha, isnx}
-# source ∈ {synthetic, unicode-golden}
+# source ∈ {synthetic, unicode-golden, corpus-shell}
 CP-01	continuous-IAST	unicode-golden	ka	
 CP-02	continuous-IAST	unicode-golden	rāma	
 CP-03	continuous-IAST	unicode-golden	uvāca	
@@ -26,3 +26,8 @@ CP-18	avagraha	synthetic	so'ham
 CP-19	isnx	synthetic	an ka	
 CP-20	continuous-IAST	synthetic	saṃskṛta	
 CP-21	continuous-IAST	synthetic	saṃ	
+CP-22	continuous-IAST	corpus-shell	dharma-kṣetre	
+CP-23	continuous-IAST	corpus-shell	kṣetre	
+CP-24	continuous-IAST	corpus-shell	caitanya	
+CP-25	continuous-IAST	corpus-shell	caiva	
+CP-26	word-boundary	corpus-shell	dhṛtarāṣṭra uvāca	
