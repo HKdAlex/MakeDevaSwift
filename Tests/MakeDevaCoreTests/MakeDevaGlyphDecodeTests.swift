@@ -37,6 +37,8 @@ struct MakeDevaGlyphDecodeTests {
             "haM", "oM", "saM",
             "ju", "Su", "arjuna", "madhusUdanaH", "kSudraM", "puMsaH",
             "kI", "kIrti", "kL",
+            "janArdana", "indriyANi", "kAryaM", "kurvanti", "nti", "ndri", "kuryAM",
+            "ry", "arTa",
         ]
         for s in samples {
             let glyphs = LineConversion.convertLine(s).glyphs
@@ -91,6 +93,26 @@ struct MakeDevaGlyphDecodeTests {
         #expect(MakeDevaUnicode.customPathUnicode("kī") == MakeDevaUnicode.convertLine("kī"))
         #expect(MakeDevaUnicode.customPathUnicode("kīrti") == MakeDevaUnicode.convertLine("kīrti"))
         #expect(MakeDevaUnicode.customPathUnicode("kḷ") == MakeDevaUnicode.convertLine("kḷ"))
+    }
+
+    @Test("decodeUnicode honors C repha splice, collapsed r+M, and pending-i on half-n")
+    func rephaAndPendingIClustersMatchICU() {
+        let asciiSamples = [
+            "janArdana", "indriyANi", "kAryaM", "kurvanti", "nti", "ndri", "kuryAM", "ry", "arTa",
+        ]
+        for s in asciiSamples {
+            let glyphs = LineConversion.convertLine(s).glyphs
+            #expect(
+                MakeDevaGlyphDecode.reconstructMakeDevaASCII(glyphs) == s,
+                "input \(s) reconstructed \(MakeDevaGlyphDecode.reconstructMakeDevaASCII(glyphs))"
+            )
+        }
+        #expect(MakeDevaUnicode.customPathUnicode("janārdana") == MakeDevaUnicode.convertLine("janārdana"))
+        #expect(MakeDevaUnicode.customPathUnicode("indriyāṇi") == MakeDevaUnicode.convertLine("indriyāṇi"))
+        #expect(MakeDevaUnicode.customPathUnicode("kāryaṁ") == MakeDevaUnicode.convertLine("kāryaṁ"))
+        #expect(MakeDevaUnicode.customPathUnicode("kurvanti") == MakeDevaUnicode.convertLine("kurvanti"))
+        #expect(MakeDevaUnicode.customPathUnicode("kuryāṁ") == MakeDevaUnicode.convertLine("kuryāṁ"))
+        #expect(MakeDevaUnicode.customPathUnicode("artha") == MakeDevaUnicode.convertLine("artha"))
     }
 
     @Test("decodeUnicode honors C anusvara M as IAST ṁ (U+1E41)")
