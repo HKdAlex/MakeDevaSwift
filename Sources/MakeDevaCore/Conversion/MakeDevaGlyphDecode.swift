@@ -21,6 +21,7 @@ import Foundation
 ///
 /// `ṛ`/`ṝ`/`ḷ` after a no-splice `fonta` cluster (e.g. `D` → `44 61 7B`) are trailing
 /// vowelsign bytes `0x7B`/`0x7C`/`0x7D`, not splice and not repha (`0x52`).
+/// `e`/`ai` after a letterform (`kSetre` → `BA 61 65 …`) are trailing `0x65`/`0x45`.
 ///
 /// Does **not** call `prepareIAST` (ADR-23: no shared prep on the custom path).
 public enum MakeDevaGlyphDecode {
@@ -116,10 +117,14 @@ public enum MakeDevaGlyphDecode {
                 if match.vowelClass == .inherentA, vowel == "a" || vowel == nil {
                     (vowel, consumed) = applyAiafter(glyphs, at: i, consumed: consumed, vowel: vowel)
                 }
-                // fonta rows with no 0x20 splice (e.g. "D" = 0x44 0x61) emit ṛ/ṝ/ḷ as
+                // fonta rows with no 0x20 splice (e.g. "D" → `44 61 7B`) emit ṛ/ṝ/ḷ as
                 // a following vowelsign (0x7B/0x7C/0x7D), not a splice byte.
+                // The same pattern applies to e (0x65) and ai/E (0x45): C writes them
+                // after the letterform (`kSetre` → `BA 61 65 …`), not at the 0x20 splice.
                 if vowel == nil || vowel == "a", i + consumed < glyphs.count {
-                    switch glyphs[i + consumed] {
+                    let next = glyphs[i + consumed]
+                    let nextStartsCluster = clusterMatch(glyphs, at: i + consumed) != nil
+                    switch next {
                     case 0x7B:
                         vowel = "R"
                         consumed += 1
@@ -128,6 +133,12 @@ public enum MakeDevaGlyphDecode {
                         consumed += 1
                     case 0x7D:
                         vowel = "L"
+                        consumed += 1
+                    case 0x65 where !nextStartsCluster:
+                        vowel = "e"
+                        consumed += 1
+                    case 0x45 where !nextStartsCluster:
+                        vowel = "E"
                         consumed += 1
                     default:
                         break

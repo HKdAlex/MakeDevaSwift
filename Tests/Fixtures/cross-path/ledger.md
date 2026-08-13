@@ -10,6 +10,8 @@ Documented inequalities on `Tests/Fixtures/cross-path/corpus.tsv`. Rows stay in 
 
 **XP-002 resolved (IU-60):** CP-19 `an ka` — `IndicSandhi` drops dental *n* before space + isnx consonant (`an ka` → `a ka`), matching custom `LineConversion`. Row stays in the corpus with an empty divergence column.
 
+**IU-GAP-002 / [#116](https://github.com/HKdAlex/BBText/issues/116):** `e`/`ai` vowelsign bytes (`0x65`/`0x45`) after a letterform — CP-22–CP-25 (`dharma-kṣetre`, `kṣetre`, `caitanya`, `caiva`) NFC-match. Remaining production divergences (`ṁ`/`oṁ`, visarga+space) are **not** ledgered here; they are [IU-GAP-003 / #117](https://github.com/HKdAlex/BBText/issues/117).
+
 Do **not** “fix” remaining diffs by calling `prepareIAST` on the custom path.
 Do **not** drop corpus rows.
 Do **not** treat `k a` as a join golden.
