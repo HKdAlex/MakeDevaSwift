@@ -18,7 +18,9 @@ Documented inequalities on `Tests/Fixtures/cross-path/corpus.tsv`. Rows stay in 
 
 **IU-GAP-005 / [#122](https://github.com/HKdAlex/BBText/issues/122):** decode honors C wide long-ī `aiafter` rewritten to `L` (`0x4C`; ḷ vowelsign is `0x7D`). Unicode-path coda-consonant space-drop (`tam ka`). CP-37–CP-39. Floor 39. `k a` stays unjoined. `k g` / `n m k a` stay off CrossPath (Rule F leftover / `k a` hard stop).
 
-**IU-GAP-006 Class A / [#125](https://github.com/HKdAlex/BBText/issues/125):** decode honors C repha at the FontTables splice (`R` `0x52`), collapsed rbefore+M (`'<'` `0x3C`), virama+repha (`0x2C` `R`), C `yafter` (`Y` `a`), and pending `i` applied to the vowel-bearing cluster after a fontc half-consonant. CP-40–CP-44 (`janārdana`, `indriyāṇi`, `kāryaṁ`, `kurvanti`, `kuryāṁ`). Floor 44. Leftover on #125: Class B (`hy a` / `k a` hard stop), Class C hyphen, Class D Unicode `isnx` coda-`n`. Not ledgered.
+**IU-GAP-006 Class A / [#125](https://github.com/HKdAlex/BBText/issues/125):** decode honors C repha at the FontTables splice (`R` `0x52`), collapsed rbefore+M (`'<'` `0x3C`), virama+repha (`0x2C` `R`), C `yafter` (`Y` `a`), and pending `i` applied to the vowel-bearing cluster after a fontc half-consonant. CP-40–CP-44 (`janārdana`, `indriyāṇi`, `kāryaṁ`, `kurvanti`, `kuryāṁ`). Floor 44.
+
+**IU-GAP-006 Class D / [#125](https://github.com/HKdAlex/BBText/issues/125):** Unicode `isnx` drops dental `n` only after a standalone vowel (`an ka` → `a ka`). Onset+vowel coda `n` is kept (`devān bh`, `vidvān yuktaḥ`, `śreyān sva-dharmo`); not coda-consonant glue. CP-45–CP-47. Floor 47. Leftover on #125: Class B (`hy a` / `k a` hard stop), Class C hyphen. Not ledgered.
 
 Do **not** “fix” remaining diffs by calling `prepareIAST` on the custom path.
 Do **not** drop corpus rows.
