@@ -61,3 +61,10 @@ CP-53	continuous-IAST	corpus-shell	ahaṅkāra-vimūḍhātmā
 CP-54	continuous-IAST	corpus-shell	mukta-saṅgaḥ	
 CP-55	continuous-IAST	corpus-shell	loka-saṅgraham	
 CP-56	continuous-IAST	corpus-shell	guṇa-karma-vibhāgayoḥ	
+CP-57	word-boundary	synthetic	k a	
+CP-58	word-boundary	corpus-shell	hy a	
+CP-59	word-boundary	corpus-shell	tad e	
+CP-60	word-boundary	corpus-shell	tad ekaṁ	
+CP-61	word-boundary	corpus-shell	kāryate hy avaśaḥ	
+CP-62	word-boundary	corpus-shell	yadi hy ahaṁ	
+CP-63	word-boundary	corpus-shell	kṛtsna-vin na	
