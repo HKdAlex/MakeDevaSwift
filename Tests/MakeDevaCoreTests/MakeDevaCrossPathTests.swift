@@ -4,7 +4,7 @@ import Testing
 
 struct MakeDevaCrossPathTests {
 
-    private static let corpusFloor = 56
+    private static let corpusFloor = 63
 
     @Test("ingest maps Unicode IAST to MakeDeva ASCII")
     func ingestKnownPairs() {
@@ -21,7 +21,7 @@ struct MakeDevaCrossPathTests {
     func customPathDoesNotPrepare() {
         let ascii = MakeDevaIngest.iastToMakeDevaASCII("k  a")
         #expect(ascii == "k  a")
-        #expect(MakeDevaUnicode.prepareIAST("k  a") == "k a")
+        #expect(MakeDevaUnicode.prepareIAST("k  a") == "ka")
     }
 
     @Test("CrossPathCorpus has at least the committed floor (anti-shrink)")

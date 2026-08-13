@@ -10,8 +10,10 @@ struct MakeDevaUnicodeTests {
     func prepareIASTWhitespaceOnly() {
         #expect(MakeDevaUnicode.prepareIAST("k  \t  g") == "kg")
         #expect(MakeDevaUnicode.prepareIAST("k g") == "kg")
-        #expect(MakeDevaUnicode.prepareIAST("k a") == "k a")
-        #expect(MakeDevaUnicode.prepareIAST("n m k a") == "nmk a")
+        #expect(MakeDevaUnicode.prepareIAST("k a") == "ka")
+        #expect(MakeDevaUnicode.prepareIAST("n m k a") == "nmka")
+        #expect(MakeDevaUnicode.prepareIAST("hy a") == "hya")
+        #expect(MakeDevaUnicode.prepareIAST("tad e") == "tade")
         #expect(MakeDevaUnicode.prepareIAST("tam ka") == "tamka")
         #expect(MakeDevaUnicode.prepareIAST("an ka") == "a ka")
         #expect(MakeDevaUnicode.prepareIAST("devān bhāvayatānena") == "devān bhāvayatānena")
