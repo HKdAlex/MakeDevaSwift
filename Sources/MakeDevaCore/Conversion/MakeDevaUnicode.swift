@@ -38,6 +38,14 @@ public enum MakeDevaUnicode {
         transliterateToUnicodeDevanagari(iast)
     }
 
+    /// Glyph → Unicode Devanagari (IU-58). Custom-path buffer; no `prepareIAST`.
+    ///
+    /// Mapping: `FontTables` (`devaline.c`) → MakeDeva ASCII → IAST → ICU.
+    /// See `MakeDevaGlyphDecode`.
+    public static func decodeUnicode(_ glyphs: [UInt8]) -> String {
+        MakeDevaGlyphDecode.decodeUnicode(glyphs)
+    }
+
     // MARK: - Private
 
     private static func transliterateToUnicodeDevanagari(_ iast: String) -> String {

@@ -1,0 +1,18 @@
+# glyphs (space-separated hex)	Unicode Devanagari (expected)	MakeDeva ASCII (comment)
+# IU-58 recorded oracle — RM Devanagari glyph buffer → Unicode
+# Glyphs produced by LineConversion.convertLine(ASCII); Unicode via FontTables reverse + ICU
+# Mapping ownership: FontTables (devaline.c), not devaconv.c olddeva
+6B 28	क	ka
+72 22 41 6D 61	राम	rAma
+6F 76 61 41 63 61	उवाच	uvAca
+6B 7B 28 53 4E 41	कृष्ण	kRSNa
+6E 61 6D 61 41 65	नमो	namo
+57 76 61	एव	eva
+40	अ	a
+77	इ	i
+57	ए	e
+40 41 65	ओ	o
+6B 28 20 6D 61	क म	ka ma
+69 6B 28	कि	ki
+E4 2C 22 68 22 6D 61 52	धर्म	dharma
+99 61 49	श्री	ZrI

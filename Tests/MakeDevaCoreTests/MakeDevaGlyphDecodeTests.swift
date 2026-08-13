@@ -1,0 +1,90 @@
+import Foundation
+import Testing
+@testable import MakeDevaCore
+
+struct MakeDevaGlyphDecodeTests {
+
+    // MARK: - Known glyph sequences → Unicode (IU-58 fixtures)
+
+    @Test("decodeUnicode maps recorded glyph bytes to Unicode Devanagari")
+    func goldenGlyphFixtures() throws {
+        let url = try Self.fixtureURL("glyph-decode/cases.tsv")
+        let text = try String(contentsOf: url, encoding: .utf8)
+        for line in text.split(whereSeparator: \.isNewline) {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            if trimmed.isEmpty || trimmed.hasPrefix("#") { continue }
+            let parts = trimmed.split(separator: "\t", maxSplits: 2).map(String.init)
+            guard parts.count >= 2 else {
+                Issue.record("Malformed fixture line: \(trimmed)")
+                continue
+            }
+            let glyphs = try Self.parseHex(parts[0])
+            #expect(
+                MakeDevaUnicode.decodeUnicode(glyphs) == parts[1],
+                "glyphs: \(parts[0])"
+            )
+        }
+    }
+
+    // MARK: - Reconstruction of MakeDeva ASCII
+
+    @Test("reconstructMakeDevaASCII round-trips LineConversion samples")
+    func reconstructSimpleASCII() {
+        let samples = [
+            "ka", "rAma", "uvAca", "kRSNa", "namo", "eva", "a", "i", "e", "o", "ka ma",
+            "dharma", "ki", "ZrI",
+        ]
+        for s in samples {
+            let glyphs = LineConversion.convertLine(s).glyphs
+            let got = MakeDevaGlyphDecode.reconstructMakeDevaASCII(glyphs)
+            #expect(got == s, "input \(s) reconstructed \(got) glyphs \(hex(glyphs))")
+        }
+    }
+
+    @Test("decodeUnicode of LineConversion(ka) matches ICU ka")
+    func kaCrossCheck() {
+        let glyphs = LineConversion.convertLine("ka").glyphs
+        #expect(MakeDevaUnicode.decodeUnicode(glyphs) == "क")
+    }
+
+    @Test("ASCII→IAST maps MakeDeva alphabet")
+    func asciiToIAST() {
+        #expect(MakeDevaGlyphDecode.makeDevaASCIIToIAST("kRSNa") == "kṛṣṇa")
+        #expect(MakeDevaGlyphDecode.makeDevaASCIIToIAST("rAma") == "rāma")
+        #expect(MakeDevaGlyphDecode.makeDevaASCIIToIAST("ZrI") == "śrī")
+    }
+
+    // MARK: - Helpers
+
+    private func hex(_ glyphs: [UInt8]) -> String {
+        glyphs.map { String(format: "%02X", $0) }.joined(separator: " ")
+    }
+
+    private static func parseHex(_ text: String) throws -> [UInt8] {
+        let tokens = text.split(whereSeparator: \.isWhitespace)
+        return try tokens.map { token in
+            guard let v = UInt8(token, radix: 16) else {
+                throw FixtureError.badHex(String(token))
+            }
+            return v
+        }
+    }
+
+    private static func fixtureURL(_ relative: String) throws -> URL {
+        let thisFile = URL(fileURLWithPath: #filePath)
+        let fixtures = thisFile
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("Fixtures", isDirectory: true)
+            .appendingPathComponent(relative)
+        guard FileManager.default.fileExists(atPath: fixtures.path) else {
+            throw FixtureError.missing(fixtures.path)
+        }
+        return fixtures
+    }
+
+    private enum FixtureError: Error {
+        case missing(String)
+        case badHex(String)
+    }
+}
