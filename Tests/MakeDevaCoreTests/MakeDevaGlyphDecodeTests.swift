@@ -174,6 +174,34 @@ struct MakeDevaGlyphDecodeTests {
         }
     }
 
+    @Test("coda-d conjunct glue including word-spaced dh NFC-match ICU")
+    func gap009CodaDConjunctsAndSpacedDh() {
+        let samples: [(iast: String, ascii: String)] = [
+            ("bhavatād bhaktir", "BavatAd Baktir"),
+            ("bhaved grāhyam", "Baved grAhyam"),
+            ("aiśvaryād rūpam", "EZvaryAd rUpam"),
+            ("etad dhi", "etad Di"),
+            ("niścayād dhairyāt", "niZcayAd DEryAt"),
+            ("tasmād brahmaṇi", "tasmAd brahmaNi"),
+            ("tasmād baka", "tasmAd baka"),
+            ("sthānād bhraṣṭāḥ", "sTAnAd BraSqAH"),
+            ("vidyād duḥkha", "vidyAd duHKa"),
+            ("balavad dṛḍham", "balavad dRXam"),
+        ]
+        for (s, expectedASCII) in samples {
+            let ascii = MakeDevaIngest.iastToMakeDevaASCII(s)
+            let glyphs = LineConversion.convertLine(ascii).glyphs
+            let recon = MakeDevaGlyphDecode.reconstructMakeDevaASCII(glyphs)
+            let u = MakeDevaUnicode.convertLine(s)
+            let c = MakeDevaUnicode.customPathUnicode(s)
+            #expect(ascii == expectedASCII, "\(s) ingest=\(ascii)")
+            #expect(
+                MakeDevaUnicode.unicodeEquivalent(u, c),
+                "\(s) ascii=\(ascii) recon=\(recon) glyphs=\(hex(glyphs)) unicode=\(u) custom=\(c)"
+            )
+        }
+    }
+
     @Test("yafter trailing e/ai, coda-d space, and l-candrabindu before l NFC-match ICU")
     func gap008YafterVisargaCodaDAndLCandrabindu() {
         let samples: [(iast: String, ascii: String)] = [
