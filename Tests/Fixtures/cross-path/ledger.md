@@ -30,7 +30,9 @@ Documented inequalities on `Tests/Fixtures/cross-path/corpus.tsv`. Rows stay in 
 
 **IU-GAP-008 / [#136](https://github.com/HKdAlex/BBText/issues/136):** C `yafter` leftover vowelsign `e`/`ai` (`0x65`/`0x45`) on `sāṅkhyaiḥ` / `śuddhyed`. Coda `d` leftover virama + space before `br` (`tasmād brahmaṇi`); `dy` still clusters. `l̐` + space + `l` does not swallow the next syllable (`vāl̐ la`). CP-69–CP-74. Floor 74.
 
-**IU-GAP-009 / [#140](https://github.com/HKdAlex/BBText/issues/140):** C `dB`/`dg`/`dr`/`db`/`dD` conjuncts glue (`bhavatād bhaktir`, `bhaved grāhyam`, `aiśvaryād rūpam`, `tasmād baka`, `etad dhi`, `niścayād dhairyāt`). Leftover fontc `d` virama keeps space before `br`/`bhr`/non-`dh` `d` (`tasmād brahmaṇi`, `sthānād bhraṣṭāḥ`, `vidyād duḥkha`, `balavad dṛḍham`). Unicode prep drops the space for `dD` so ICU `ddh` matches C ḍh. Not HKIndic pairwise. CP-75–CP-83. Floor 83.
+**IU-GAP-009 / [#140](https://github.com/HKdAlex/BBText/issues/140):** C `dB`/`dg`/`dr`/`db`/`dD` conjuncts glue (`bhavatād bhaktir`, `bhaved grāhyam`, `aiśvaryād rūpam`, `tasmād baka`, `etad dhi`, `niścayād dhairyāt`). Leftover fontc `d` virama keeps space before `br`/`bhr`/`du`/`dū`/`dṛ` (`tasmād brahmaṇi`, `sthānād bhraṣṭāḥ`, `vidyād duḥkha`, `balavad dṛḍham`). Unicode prep drops the space for `dD` so ICU `ddh` matches C ḍh. Not HKIndic pairwise. CP-75–CP-83. Floor 83.
+
+**IU-GAP-010 / [#143](https://github.com/HKdAlex/BBText/issues/143):** C fonta `dd` (`0xDA`) glues coda `d` + `da`/`dā`/`di`/`dī`/`de`/`dai`/`do`/`dau` (`tyatiṣṭhad daśāṅgulam`, `tad da`). Leftover virama still before `du`/`dū`/`dṛ`. Convertline unchanged. CP-84–CP-85. Floor 85.
 
 Do **not** “fix” remaining diffs by calling `prepareIAST` on the custom path.
 Do **not** drop corpus rows.
