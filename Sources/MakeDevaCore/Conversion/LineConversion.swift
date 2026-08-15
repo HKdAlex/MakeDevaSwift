@@ -269,6 +269,14 @@ public enum LineConversion {
                 
                 linei += 1
             }
+
+            // Dead consonant + candrabindu: IAST `l̐` ingests as `lw`. C collects `w`
+            // as a consonant; peel it as anunasika so virama-`l` keeps `*` (ICU `ल्̐`).
+            if vowel == Character(" "), consn > 1, cons.last == Character("w") {
+                cons.removeLast()
+                consn -= 1
+                anusvara = Character("*")
+            }
             
             // Process vowel modifiers - lines 1557-1592
             // Only process modifiers if an actual vowel was found (not the default space)

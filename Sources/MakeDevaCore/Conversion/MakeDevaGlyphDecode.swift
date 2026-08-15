@@ -60,16 +60,22 @@ public enum MakeDevaGlyphDecode {
                 continue
             }
             if b == FontConstants.CODE_EndVerseLine || b == FontConstants.CODE_EndProseLine {
+                flushPendingHalf(
+                    pendingI: &pendingI, pendingHalfCons: &pendingHalfCons, out: &out)
                 out.append("\n")
                 i += 1
                 continue
             }
             if b == FontConstants.CODE_EmDash {
+                flushPendingHalf(
+                    pendingI: &pendingI, pendingHalfCons: &pendingHalfCons, out: &out)
                 out.append("-")
                 i += 1
                 continue
             }
             if b == UInt8(ascii: " ") {
+                flushPendingHalf(
+                    pendingI: &pendingI, pendingHalfCons: &pendingHalfCons, out: &out)
                 out.append(" ")
                 i += 1
                 continue
@@ -85,11 +91,15 @@ public enum MakeDevaGlyphDecode {
                 continue
             }
             if b == UInt8(ascii: "-") {
+                flushPendingHalf(
+                    pendingI: &pendingI, pendingHalfCons: &pendingHalfCons, out: &out)
                 out.append("-")
                 i += 1
                 continue
             }
             if b == UInt8(ascii: "'") {
+                flushPendingHalf(
+                    pendingI: &pendingI, pendingHalfCons: &pendingHalfCons, out: &out)
                 out.append("'")
                 i += 1
                 continue
@@ -119,6 +129,8 @@ public enum MakeDevaGlyphDecode {
             }
 
             if let (consumed, ascii) = standaloneVowelMatch(glyphs, at: i) {
+                flushPendingHalf(
+                    pendingI: &pendingI, pendingHalfCons: &pendingHalfCons, out: &out)
                 out.append(ascii)
                 i += consumed
                 pendingI = false
@@ -230,14 +242,28 @@ public enum MakeDevaGlyphDecode {
         }
 
         if !pendingHalfCons.isEmpty {
-            if pendingI {
-                out.append(pendingHalfCons + "i")
-            } else {
-                out.append(pendingHalfCons)
-            }
+            flushPendingHalf(
+                pendingI: &pendingI, pendingHalfCons: &pendingHalfCons, out: &out)
         }
 
         return out
+    }
+
+    /// fontc/fontv letterforms (`vowelClass == .none`) wait for the next vowel-bearing
+    /// cluster so repha can prefix the whole conjunct. Word separators must emit first.
+    private static func flushPendingHalf(
+        pendingI: inout Bool,
+        pendingHalfCons: inout String,
+        out: inout String
+    ) {
+        guard !pendingHalfCons.isEmpty else { return }
+        if pendingI {
+            out.append(pendingHalfCons + "i")
+            pendingI = false
+        } else {
+            out.append(pendingHalfCons)
+        }
+        pendingHalfCons = ""
     }
 
     /// C `rbefore` after the letterform: virama+`R`, leftover `R`, or collapsed
@@ -248,11 +274,12 @@ public enum MakeDevaGlyphDecode {
         consumed: Int,
         cons: String,
         vowel: Character?
-    ) -> (cons: String, vowel: Character?, consumed: Int, collapsedAnusvara: Character?) {
+    ) -> (cons: String, vowel: Character?, consumed: Int, collapsedAnusvara: Character?, prefixedRepha: Bool) {
         var cons = cons
         var vowel = vowel
         var consumed = consumed
         var collapsedAnusvara: Character?
+        var prefixedRepha = false
 
         if i + consumed + 1 < glyphs.count,
            glyphs[i + consumed] == 0x2C,
@@ -261,6 +288,7 @@ public enum MakeDevaGlyphDecode {
             cons = "r" + cons
             vowel = " "
             consumed += 2
+            prefixedRepha = true
         }
 
         if i + consumed < glyphs.count,
@@ -269,6 +297,7 @@ public enum MakeDevaGlyphDecode {
         {
             cons = "r" + cons
             consumed += 1
+            prefixedRepha = true
         }
 
         if i + consumed < glyphs.count {
@@ -277,15 +306,17 @@ public enum MakeDevaGlyphDecode {
                 cons = "r" + cons
                 collapsedAnusvara = "M"
                 consumed += 1
+                prefixedRepha = true
             case 0x3D:
                 cons = "r" + cons
                 consumed += 1
+                prefixedRepha = true
             default:
                 break
             }
         }
 
-        return (cons, vowel, consumed, collapsedAnusvara)
+        return (cons, vowel, consumed, collapsedAnusvara, prefixedRepha)
     }
 
     /// Prefixed `i` (`0x69`) applies to the next vowel-bearing cluster, not a
@@ -311,12 +342,23 @@ public enum MakeDevaGlyphDecode {
         )
         consumed = marked.consumed
 
-        if vowelClass == .none, pendingI {
+        // fontc half-consonants (`t` `0x74`, `N` `0x4E`, …) must join the next
+        // vowel-bearing cluster. Otherwise trailing repha on that cluster prefixes
+        // only the last cons (`t`+`mA`+`R` → `trmA` instead of `rtmA`).
+        if vowelClass == .none {
             pendingHalfCons += marked.cons
             return
         }
 
-        var syllable = pendingHalfCons + marked.cons
+        // C emits repha (`R` / `0x3C`) after the vowel-bearing letterform. A preceding
+        // fontc half-consonant is the rest of the same conjunct (`t`+`mA`+`R` → `rtmA`,
+        // not `trmA`). Prefix `r` in front of the whole cluster.
+        var syllable: String
+        if marked.prefixedRepha, !pendingHalfCons.isEmpty, marked.cons.first == "r" {
+            syllable = "r" + pendingHalfCons + String(marked.cons.dropFirst())
+        } else {
+            syllable = pendingHalfCons + marked.cons
+        }
         pendingHalfCons = ""
         if pendingI {
             syllable.append("i")
@@ -619,8 +661,17 @@ public enum MakeDevaGlyphDecode {
     public static func makeDevaASCIIToIAST(_ ascii: String) -> String {
         var out = ""
         out.reserveCapacity(ascii.count)
-        for ch in ascii {
-            out.append(asciiToIAST[ch] ?? String(ch))
+        let chars = Array(ascii)
+        var i = 0
+        while i < chars.count {
+            // Coda `l` + anunasika (`*` → `w`) is IAST `l̐`, not `m̐l`.
+            if i + 1 < chars.count, chars[i] == "l", chars[i + 1] == "w" {
+                out.append("l̐")
+                i += 2
+                continue
+            }
+            out.append(asciiToIAST[chars[i]] ?? String(chars[i]))
+            i += 1
         }
         return out
     }

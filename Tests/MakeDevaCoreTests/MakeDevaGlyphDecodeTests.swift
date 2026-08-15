@@ -152,12 +152,36 @@ struct MakeDevaGlyphDecodeTests {
         #expect(MakeDevaUnicode.customPathUnicode("saṁ") == MakeDevaUnicode.convertLine("saṁ"))
     }
 
+    @Test("repha before conjunct (rtm/rṇy) and l-candrabindu NFC-match ICU")
+    func rephaConjunctAndLCandrabinduMatchICU() {
+        let samples: [(iast: String, ascii: String)] = [
+            ("vartmā", "vartmA"),
+            ("varṇyaṁ", "varNyaM"),
+            ("vāl̐", "vAlw"),
+        ]
+        for (s, expectedASCII) in samples {
+            let ascii = MakeDevaIngest.iastToMakeDevaASCII(s)
+            let glyphs = LineConversion.convertLine(ascii).glyphs
+            let recon = MakeDevaGlyphDecode.reconstructMakeDevaASCII(glyphs)
+            let u = MakeDevaUnicode.convertLine(s)
+            let c = MakeDevaUnicode.customPathUnicode(s)
+            #expect(ascii == expectedASCII, "\(s) ingest=\(ascii)")
+            #expect(recon == expectedASCII, "\(s) recon=\(recon) glyphs=\(hex(glyphs))")
+            #expect(
+                MakeDevaUnicode.unicodeEquivalent(u, c),
+                "\(s) ascii=\(ascii) recon=\(recon) glyphs=\(hex(glyphs)) unicode=\(u) custom=\(c)"
+            )
+        }
+    }
+
     @Test("ASCII→IAST maps MakeDeva alphabet")
     func asciiToIAST() {
         #expect(MakeDevaGlyphDecode.makeDevaASCIIToIAST("kRSNa") == "kṛṣṇa")
         #expect(MakeDevaGlyphDecode.makeDevaASCIIToIAST("rAma") == "rāma")
         #expect(MakeDevaGlyphDecode.makeDevaASCIIToIAST("ZrI") == "śrī")
         #expect(MakeDevaGlyphDecode.makeDevaASCIIToIAST("M") == "ṁ")
+        #expect(MakeDevaGlyphDecode.makeDevaASCIIToIAST("lw") == "l̐")
+        #expect(MakeDevaGlyphDecode.makeDevaASCIIToIAST("vAlw") == "vāl̐")
     }
 
     // MARK: - Helpers

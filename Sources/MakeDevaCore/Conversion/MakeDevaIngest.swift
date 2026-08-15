@@ -37,6 +37,10 @@ public enum MakeDevaIngest {
     /// Longest IAST spellings first so `ṭh` is not consumed as `ṭ` + `h`.
     private static let iastTokens: [(String, String)] = [
         ("m̐", "w"),
+        // C Harvard-Kyoto `V` expands to `wl` (anunasika then `l`). Unicode IAST `l̐`
+        // is coda `l` + candrabindu, so ingest is `lw` — otherwise a preceding vowel
+        // steals `w` as anunasika (`vAwl` → वाँल, not ICU `वाल्̐`).
+        ("l̐", "lw"),
         ("ḷh", "f"),
         ("kh", "K"), ("gh", "G"), ("ch", "C"), ("jh", "J"),
         ("ṭh", "Q"), ("ḍh", "X"), ("th", "T"), ("dh", "D"),
