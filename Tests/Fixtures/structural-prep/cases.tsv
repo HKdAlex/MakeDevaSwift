@@ -27,6 +27,15 @@ pāṇḍavāś caiva	pāṇḍavāścaiva	coda-consonant-sibilant
 āś ca	āśca	coda-consonant-sibilant
 as ka	aska	coda-consonant-s
 tasmād brahmaṇi	tasmād brahmaṇi	coda-d-virama-keep-space
+sthānād bhraṣṭāḥ	sthānād bhraṣṭāḥ	coda-d-bhr-keep-space
+vidyād duḥkha	vidyād duḥkha	coda-d-d-keep-space
+balavad dṛḍham	balavad dṛḍham	coda-d-d-keep-space
+etad dhi	etaddhi	coda-d-dh-glue
+niścayād dhairyāt	niścayāddhairyāt	coda-d-dh-glue
+bhavatād bhaktir	bhavatādbhaktir	coda-d-bh-glue
+bhaved grāhyam	bhavedgrāhyam	coda-d-g-glue
+aiśvaryād rūpam	aiśvaryādrūpam	coda-d-r-glue
+tasmād baka	tasmādbaka	coda-d-b-glue
 śuddhyed yasmād	śuddhyedyasmād	coda-d-y-glue
 ka ma	ka ma	vowel-ended-keep-space
 viṣīdantam idaṁ	viṣīdantamidaṁ	coda-nasal-vowel

@@ -28,7 +28,9 @@ Documented inequalities on `Tests/Fixtures/cross-path/corpus.tsv`. Rows stay in 
 
 **IU-GAP-007 / [#131](https://github.com/HKdAlex/BBText/issues/131):** trailing C repha applies to the whole conjunct including a preceding fontc half-consonant (`t`+`mA`+`R` → `rtmA`, `N`+`ya`+`0x3C` → `rNyaM`). Unicode IAST `l̐` ingests as `lw` (coda `l` + anunasika); reconstruct maps `lw` → `l̐` so ICU is `ल्̐`. C Harvard-Kyoto `V` → `wl` is a different letter order and is not used on the Unicode ingest path. CP-64–CP-68. Floor 68.
 
-**IU-GAP-008 / [#136](https://github.com/HKdAlex/BBText/issues/136):** C `yafter` leftover vowelsign `e`/`ai` (`0x65`/`0x45`) on `sāṅkhyaiḥ` / `śuddhyed`. Coda `d` + space + non-`y` cons keeps the word space (`tasmād brahmaṇi`); `dy` still clusters. `l̐` + space + `l` does not swallow the next syllable (`vāl̐ la`). CP-69–CP-74. Floor 74.
+**IU-GAP-008 / [#136](https://github.com/HKdAlex/BBText/issues/136):** C `yafter` leftover vowelsign `e`/`ai` (`0x65`/`0x45`) on `sāṅkhyaiḥ` / `śuddhyed`. Coda `d` leftover virama + space before `br` (`tasmād brahmaṇi`); `dy` still clusters. `l̐` + space + `l` does not swallow the next syllable (`vāl̐ la`). CP-69–CP-74. Floor 74.
+
+**IU-GAP-009 / [#140](https://github.com/HKdAlex/BBText/issues/140):** C `dB`/`dg`/`dr`/`db`/`dD` conjuncts glue (`bhavatād bhaktir`, `bhaved grāhyam`, `aiśvaryād rūpam`, `tasmād baka`, `etad dhi`, `niścayād dhairyāt`). Leftover fontc `d` virama keeps space before `br`/`bhr`/non-`dh` `d` (`tasmād brahmaṇi`, `sthānād bhraṣṭāḥ`, `vidyād duḥkha`, `balavad dṛḍham`). Unicode prep drops the space for `dD` so ICU `ddh` matches C ḍh. Not HKIndic pairwise. CP-75–CP-83. Floor 83.
 
 Do **not** “fix” remaining diffs by calling `prepareIAST` on the custom path.
 Do **not** drop corpus rows.
