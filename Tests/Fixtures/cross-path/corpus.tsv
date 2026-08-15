@@ -73,3 +73,9 @@ CP-65	continuous-IAST	synthetic	varṇyaṁ
 CP-66	continuous-IAST	synthetic	vāl̐	
 CP-67	continuous-IAST	corpus-shell	vartmānuvartante	
 CP-68	continuous-IAST	corpus-shell	cātur-varṇyaṁ	
+CP-69	continuous-IAST	corpus-shell	sāṅkhyaiḥ	
+CP-70	word-boundary	corpus-shell	tasmād brahmaṇi	
+CP-71	word-boundary	corpus-shell	brahma-vid brahmaṇi	
+CP-72	continuous-IAST	corpus-shell	śuddhyed	
+CP-73	word-boundary	synthetic	vāl̐ la	
+CP-74	word-boundary	corpus-shell	śraddhāvāl̐ labhate jñānaṁ	
