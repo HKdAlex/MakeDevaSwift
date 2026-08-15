@@ -26,6 +26,8 @@ Documented inequalities on `Tests/Fixtures/cross-path/corpus.tsv`. Rows stay in 
 
 **IU-GAP-006 Class B / [#125](https://github.com/HKdAlex/BBText/issues/125):** Unicode-path coda-cons + vowel space-drop matching C `convertline` (`k a` → `ka`, `hy a` → `hya`, `tad e` → `tade`). Not HKIndic pairwise. `an ka` → `a ka`. `ka ma` keeps the space. CP-57–CP-63. Floor 63.
 
+**IU-GAP-007 / [#131](https://github.com/HKdAlex/BBText/issues/131):** trailing C repha applies to the whole conjunct including a preceding fontc half-consonant (`t`+`mA`+`R` → `rtmA`, `N`+`ya`+`0x3C` → `rNyaM`). Unicode IAST `l̐` ingests as `lw` (coda `l` + anunasika); reconstruct maps `lw` → `l̐` so ICU is `ल्̐`. C Harvard-Kyoto `V` → `wl` is a different letter order and is not used on the Unicode ingest path. CP-64–CP-68. Floor 68.
+
 Do **not** “fix” remaining diffs by calling `prepareIAST` on the custom path.
 Do **not** drop corpus rows.
 Do **not** restore HKIndic pairwise joins.
