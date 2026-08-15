@@ -174,7 +174,7 @@ struct MakeDevaGlyphDecodeTests {
         }
     }
 
-    @Test("coda-d conjunct glue including word-spaced dh NFC-match ICU")
+    @Test("coda-d conjunct glue including word-spaced dh and dd NFC-match ICU")
     func gap009CodaDConjunctsAndSpacedDh() {
         let samples: [(iast: String, ascii: String)] = [
             ("bhavatād bhaktir", "BavatAd Baktir"),
@@ -187,6 +187,8 @@ struct MakeDevaGlyphDecodeTests {
             ("sthānād bhraṣṭāḥ", "sTAnAd BraSqAH"),
             ("vidyād duḥkha", "vidyAd duHKa"),
             ("balavad dṛḍham", "balavad dRXam"),
+            ("tyatiṣṭhad daśāṅgulam", "tyatiSQad daZAFgulam"),
+            ("tad da", "tad da"),
         ]
         for (s, expectedASCII) in samples {
             let ascii = MakeDevaIngest.iastToMakeDevaASCII(s)

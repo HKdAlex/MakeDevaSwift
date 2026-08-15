@@ -28,9 +28,11 @@ pāṇḍavāś caiva	pāṇḍavāścaiva	coda-consonant-sibilant
 as ka	aska	coda-consonant-s
 tasmād brahmaṇi	tasmād brahmaṇi	coda-d-virama-keep-space
 sthānād bhraṣṭāḥ	sthānād bhraṣṭāḥ	coda-d-bhr-keep-space
-vidyād duḥkha	vidyād duḥkha	coda-d-d-keep-space
-balavad dṛḍham	balavad dṛḍham	coda-d-d-keep-space
+vidyād duḥkha	vidyād duḥkha	coda-d-du-keep-space
+balavad dṛḍham	balavad dṛḍham	coda-d-dṛ-keep-space
 etad dhi	etaddhi	coda-d-dh-glue
+tyatiṣṭhad daśāṅgulam	tyatiṣṭhaddaśāṅgulam	coda-d-dd-glue
+tad da	tadda	coda-d-dd-glue
 niścayād dhairyāt	niścayāddhairyāt	coda-d-dh-glue
 bhavatād bhaktir	bhavatādbhaktir	coda-d-bh-glue
 bhaved grāhyam	bhavedgrāhyam	coda-d-g-glue
