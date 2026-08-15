@@ -147,6 +147,9 @@ public enum MakeDevaGlyphDecode {
                 var consumed = 2
                 var vowel: Character? = "a"
                 (vowel, consumed) = applyAiafter(glyphs, at: i, consumed: consumed, vowel: vowel)
+                // C writes `e`/`ai` after yafter (`KyEH` → `59 61 45`, `Dyed` → `59 61 65`).
+                (vowel, consumed) = applyTrailingLetterformVowelSign(
+                    glyphs, at: i, consumed: consumed, vowel: vowel)
                 emitCluster(
                     cons: "y",
                     vowel: vowel,
@@ -169,42 +172,8 @@ public enum MakeDevaGlyphDecode {
                 if match.vowelClass == .inherentA, vowel == "a" || vowel == nil {
                     (vowel, consumed) = applyAiafter(glyphs, at: i, consumed: consumed, vowel: vowel)
                 }
-                // fonta rows with no 0x20 splice (e.g. "D" → `44 61 7B`) emit ṛ/ṝ/ḷ as
-                // a following vowelsign (0x7B/0x7C/0x7D), not a splice byte.
-                // The same pattern applies to e (0x65), ai/E (0x45), u (0x75), and
-                // ū/U (0x55): C writes them after the letterform (`ju` → `6A 61 75`,
-                // `sU` → `73 24 61 55`), not at the 0x20 splice. fontu/fontuu rows
-                // that already embed 0x75/0x55 (`du` → `E4 75 22`) keep vowel `u`/`U`
-                // and skip this branch.
-                if vowel == nil || vowel == "a", i + consumed < glyphs.count {
-                    let next = glyphs[i + consumed]
-                    let nextStartsCluster = clusterMatch(glyphs, at: i + consumed) != nil
-                    switch next {
-                    case 0x7B:
-                        vowel = "R"
-                        consumed += 1
-                    case 0x7C:
-                        vowel = "Y"
-                        consumed += 1
-                    case 0x7D:
-                        vowel = "L"
-                        consumed += 1
-                    case 0x65 where !nextStartsCluster:
-                        vowel = "e"
-                        consumed += 1
-                    case 0x45 where !nextStartsCluster:
-                        vowel = "E"
-                        consumed += 1
-                    case 0x75 where !nextStartsCluster:
-                        vowel = "u"
-                        consumed += 1
-                    case 0x55 where !nextStartsCluster:
-                        vowel = "U"
-                        consumed += 1
-                    default:
-                        break
-                    }
-                }
+                (vowel, consumed) = applyTrailingLetterformVowelSign(
+                    glyphs, at: i, consumed: consumed, vowel: vowel)
                 emitCluster(
                     cons: match.transliteration,
                     vowel: vowel,
@@ -615,6 +584,39 @@ public enum MakeDevaGlyphDecode {
 
     /// `aiafter` / compound vowels are appended *after* the FontTables cluster
     /// (`SyllableConversion`: A, o=A+e, O=A+E) — not at the 0x20 splice.
+    /// C writes `e`/`ai`/`u`/`ū`/`ṛ`/`ṝ`/`ḷ` after a letterform (`kSetre` → `BA 61 65`,
+    /// `sAFKyEH` → `59 61 45 3A`). Same bytes follow C `yafter` (`Y` `a`).
+    private static func applyTrailingLetterformVowelSign(
+        _ glyphs: [UInt8],
+        at i: Int,
+        consumed: Int,
+        vowel: Character?
+    ) -> (Character?, Int) {
+        guard vowel == nil || vowel == "a", i + consumed < glyphs.count else {
+            return (vowel, consumed)
+        }
+        let next = glyphs[i + consumed]
+        let nextStartsCluster = clusterMatch(glyphs, at: i + consumed) != nil
+        switch next {
+        case 0x7B:
+            return ("R", consumed + 1)
+        case 0x7C:
+            return ("Y", consumed + 1)
+        case 0x7D:
+            return ("L", consumed + 1)
+        case 0x65 where !nextStartsCluster:
+            return ("e", consumed + 1)
+        case 0x45 where !nextStartsCluster:
+            return ("E", consumed + 1)
+        case 0x75 where !nextStartsCluster:
+            return ("u", consumed + 1)
+        case 0x55 where !nextStartsCluster:
+            return ("U", consumed + 1)
+        default:
+            return (vowel, consumed)
+        }
+    }
+
     private static func applyAiafter(
         _ glyphs: [UInt8],
         at i: Int,

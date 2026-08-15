@@ -15,6 +15,8 @@ struct MakeDevaUnicodeTests {
         #expect(MakeDevaUnicode.prepareIAST("hy a") == "hya")
         #expect(MakeDevaUnicode.prepareIAST("tad e") == "tade")
         #expect(MakeDevaUnicode.prepareIAST("tam ka") == "tamka")
+        #expect(MakeDevaUnicode.prepareIAST("tasmād brahmaṇi") == "tasmād brahmaṇi")
+        #expect(MakeDevaUnicode.prepareIAST("śuddhyed yasmād") == "śuddhyedyasmād")
         #expect(MakeDevaUnicode.prepareIAST("an ka") == "a ka")
         #expect(MakeDevaUnicode.prepareIAST("devān bhāvayatānena") == "devān bhāvayatānena")
         #expect(MakeDevaUnicode.prepareIAST("vidvān yuktaḥ") == "vidvān yuktaḥ")

@@ -230,6 +230,12 @@ public enum LineConversion {
                 // Handle space - in SHELL mode, applies to both verse and prose (lines 1526-1530)
                 // Note: C code has #ifdef WIN that restricts this to !verseformat, but SHELL build doesn't
                 if c == Character(" ") {
+                    // Unicode IAST `l̐` is ingest `lw`. Do not swallow a following
+                    // syllable onto that cluster (`vāl̐ la` must stay `lw` + space + `la`,
+                    // not `lwl`+`a` → `lla` with candrabindu dropped).
+                    if cons.last == Character("w") {
+                        break
+                    }
                     spaces += 1
                     linei += 1
                     continue

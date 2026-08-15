@@ -174,6 +174,29 @@ struct MakeDevaGlyphDecodeTests {
         }
     }
 
+    @Test("yafter trailing e/ai, coda-d space, and l-candrabindu before l NFC-match ICU")
+    func gap008YafterVisargaCodaDAndLCandrabindu() {
+        let samples: [(iast: String, ascii: String)] = [
+            ("sāṅkhyaiḥ", "sAFKyEH"),
+            ("śuddhyed", "ZudDyed"),
+            ("tasmād brahmaṇi", "tasmAd brahmaNi"),
+            ("vāl̐ la", "vAlw la"),
+        ]
+        for (s, expectedASCII) in samples {
+            let ascii = MakeDevaIngest.iastToMakeDevaASCII(s)
+            let glyphs = LineConversion.convertLine(ascii).glyphs
+            let recon = MakeDevaGlyphDecode.reconstructMakeDevaASCII(glyphs)
+            let u = MakeDevaUnicode.convertLine(s)
+            let c = MakeDevaUnicode.customPathUnicode(s)
+            #expect(ascii == expectedASCII, "\(s) ingest=\(ascii)")
+            #expect(recon == expectedASCII, "\(s) recon=\(recon) glyphs=\(hex(glyphs))")
+            #expect(
+                MakeDevaUnicode.unicodeEquivalent(u, c),
+                "\(s) ascii=\(ascii) recon=\(recon) glyphs=\(hex(glyphs)) unicode=\(u) custom=\(c)"
+            )
+        }
+    }
+
     @Test("ASCII→IAST maps MakeDeva alphabet")
     func asciiToIAST() {
         #expect(MakeDevaGlyphDecode.makeDevaASCIIToIAST("kRSNa") == "kṛṣṇa")

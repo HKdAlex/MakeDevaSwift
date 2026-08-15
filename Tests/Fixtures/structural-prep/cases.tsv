@@ -26,6 +26,8 @@ rāma  uvāca	rāma uvāca	whitespace
 pāṇḍavāś caiva	pāṇḍavāścaiva	coda-consonant-sibilant
 āś ca	āśca	coda-consonant-sibilant
 as ka	aska	coda-consonant-s
+tasmād brahmaṇi	tasmād brahmaṇi	coda-d-virama-keep-space
+śuddhyed yasmād	śuddhyedyasmād	coda-d-y-glue
 ka ma	ka ma	vowel-ended-keep-space
 viṣīdantam idaṁ	viṣīdantamidaṁ	coda-nasal-vowel
 bhagavān uvāca	bhagavānuvāca	coda-nasal-vowel

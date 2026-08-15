@@ -4,7 +4,7 @@ import Testing
 
 struct MakeDevaCrossPathTests {
 
-    private static let corpusFloor = 68
+    private static let corpusFloor = 74
 
     @Test("ingest maps Unicode IAST to MakeDeva ASCII")
     func ingestKnownPairs() {
@@ -17,6 +17,7 @@ struct MakeDevaCrossPathTests {
         #expect(MakeDevaIngest.iastToMakeDevaASCII("dhṛtarāṣṭra") == "DRtarASqra")
         #expect(MakeDevaIngest.iastToMakeDevaASCII("l̐") == "lw")
         #expect(MakeDevaIngest.iastToMakeDevaASCII("vāl̐") == "vAlw")
+        #expect(MakeDevaIngest.iastToMakeDevaASCII("sāṅkhyaiḥ") == "sAFKyEH")
     }
 
     @Test("custom path does not call prepareIAST (spaces preserved in ingest)")
