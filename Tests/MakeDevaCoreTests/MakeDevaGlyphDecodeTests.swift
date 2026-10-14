@@ -59,7 +59,7 @@ struct MakeDevaGlyphDecodeTests {
         #expect(MakeDevaGlyphDecode.reconstructMakeDevaASCII(glyphs) == "m")
         #expect(MakeDevaUnicode.decodeUnicode(glyphs) == MakeDevaUnicode.convertLine("m"))
         #expect(MakeDevaUnicode.customPathUnicode("so'ham") == MakeDevaUnicode.convertLine("so'ham"))
-        #expect(MakeDevaUnicode.customPathUnicode("so'ham") == "सोहम्")
+        #expect(MakeDevaUnicode.customPathUnicode("so'ham") == "सोऽहम्")
     }
 
     @Test("decodeUnicode honors C e/E vowelsign after a letterform cluster")

@@ -9,16 +9,13 @@ import Foundation
 /// ```
 /// normalized Unicode IAST
 ///   → structural prep (IndicSandhi — Unicode branch only)
-///   → ICU pre-norm (ṛ→r̥, e/o→ē/ō)
-///   → ICU Latin-Devanagari
+///   → literal Sanskrit IAST spelling → Unicode logical order
 /// ```
 ///
 /// Custom font/encoding uses ingest (`bbt_uni2bbt`) → `LineConversion` and does **not**
 /// call this type’s structural prep.
 public enum MakeDevaUnicode {
-    private static let latinToDevanagari = StringTransform(rawValue: "Latin-Devanagari")
-
-    /// Structural prep + ICU transliteration to Unicode Devanagari.
+    /// Structural prep + literal Sanskrit transliteration to Unicode Devanagari.
     public static func convertLine(_ line: String) -> String {
         let prepared = prepareIAST(line)
         return transliterateToUnicodeDevanagari(prepared)
@@ -38,14 +35,14 @@ public enum MakeDevaUnicode {
         IndicSandhi.closeSpaces(in: line, script: .devanagari)
     }
 
-    /// ICU script conversion only — caller supplies already-prepared IAST.
+    /// Literal Sanskrit script conversion only — caller supplies already-prepared IAST.
     public static func transliteratePreparedIAST(_ iast: String) -> String {
         transliterateToUnicodeDevanagari(iast)
     }
 
     /// Glyph → Unicode Devanagari (IU-58). Custom-path buffer; no `prepareIAST`.
     ///
-    /// Mapping: `FontTables` (`devaline.c`) → MakeDeva ASCII → IAST → ICU.
+    /// Mapping: `FontTables` (`devaline.c`) → MakeDeva ASCII → IAST → Unicode.
     /// See `MakeDevaGlyphDecode`.
     public static func decodeUnicode(_ glyphs: [UInt8]) -> String {
         MakeDevaGlyphDecode.decodeUnicode(glyphs)
@@ -68,17 +65,6 @@ public enum MakeDevaUnicode {
     // MARK: - Private
 
     private static func transliterateToUnicodeDevanagari(_ iast: String) -> String {
-        let normalized = normalizeForICU(iast)
-        return normalized.applyingTransform(latinToDevanagari, reverse: false) ?? normalized
-    }
-
-    /// ICU prerequisites (not structural sandhi). Must use `.literal` so diacritic
-    /// letters (ā, ī, …) are not loosely matched to ṝ / e / o.
-    private static func normalizeForICU(_ text: String) -> String {
-        text
-            .replacingOccurrences(of: "\u{1E5B}", with: "r\u{0325}", options: .literal) // ṛ → r̥
-            .replacingOccurrences(of: "\u{1E5D}", with: "r\u{0325}\u{0304}", options: .literal) // ṝ
-            .replacingOccurrences(of: "e", with: "ē", options: .literal)
-            .replacingOccurrences(of: "o", with: "ō", options: .literal)
+        SanskritUnicode.transliterate(iast)
     }
 }
