@@ -502,12 +502,23 @@ public enum MakeDevaGlyphDecode {
         var vowel: Character?
         var vowelClass = entry.vowelClass
         var anusvara: Character?
+        var spliceRepha = false
 
         if entry.hasSplice {
             if j < glyphs.count, let v = spliceVowel[glyphs[j]] {
                 vowel = v
                 j += 1
                 if v != " " { vowelClass = .fixed(v) }
+                // A splice may carry BOTH a vowel and anusvara/repha. C emits
+                // ktuṁ as B7 75 4D 28 and rde as 64 65 52 22 (#20).
+                if j < glyphs.count, glyphs[j] == UInt8(ascii: "M") || glyphs[j] == UInt8(ascii: "*") {
+                    anusvara = glyphs[j] == UInt8(ascii: "M") ? "M" : "w"
+                    j += 1
+                }
+                if j < glyphs.count, glyphs[j] == UInt8(ascii: "R") {
+                    spliceRepha = true
+                    j += 1
+                }
             } else if j < glyphs.count,
                       glyphs[j] == UInt8(ascii: "M") || glyphs[j] == UInt8(ascii: "*")
             {
@@ -566,7 +577,7 @@ public enum MakeDevaGlyphDecode {
         }
 
         return ClusterMatch(
-            transliteration: entry.transliteration,
+            transliteration: (spliceRepha ? "r" : "") + entry.transliteration,
             vowel: resolved,
             vowelClass: vowelClass,
             consumed: j - i,
