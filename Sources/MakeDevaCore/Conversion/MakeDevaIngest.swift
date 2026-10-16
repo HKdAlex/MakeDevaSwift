@@ -36,6 +36,9 @@ public enum MakeDevaIngest {
 
     /// Longest IAST spellings first so `ṭh` is not consumed as `ṭ` + `h`.
     private static let iastTokens: [(String, String)] = [
+        // Unicode authoring spellings of the existing ASCII input controls.
+        // LineConversion handles the boundary; do not run Unicode structural prep here.
+        ("’", "'"), ("\u{00A0}", " "),
         ("m̐", "w"),
         // C Harvard-Kyoto `V` expands to `wl` (anunasika then `l`). Unicode IAST `l̐`
         // is coda `l` + candrabindu, so ingest is `lw` — otherwise a preceding vowel

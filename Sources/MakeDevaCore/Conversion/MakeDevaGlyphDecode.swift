@@ -9,7 +9,7 @@ import Foundation
 /// | Custom glyph bytes | `LineConversion` / `SyllableConversion` (C `convertline` / `convertsyllable`) | this package |
 /// | Glyph clusters | Swift `FontTables` ported from `devaline.c` `fontu`/`fonta`/`fontc`/… | `Data/FontTables.swift` |
 /// | **Not used** | `devaconv.c` `olddeva[]` (legacy *old* Devanagari font, different encoding) | C-only clipboard tool |
-/// | Unicode rendering | ICU `Latin-Devanagari` after MakeDeva-ASCII → IAST | `MakeDevaUnicode.transliteratePreparedIAST` |
+/// | Unicode rendering | Literal Sanskrit spelling after MakeDeva-ASCII → IAST | `MakeDevaUnicode.transliteratePreparedIAST` |
 ///
 /// `0x20` inside `FontTables` code arrays is a **vowel-sign splice point**, not an emitted
 /// glyph (`SyllableConversion` only emits bytes `> 0x20`). Inter-syllable `0x20` in the
@@ -524,12 +524,24 @@ public enum MakeDevaGlyphDecode {
                 if j < glyphs.count, glyphs[j] == UInt8(ascii: "R") {
                     spliceRepha = true
                     j += 1
+                } else if j < glyphs.count, [0x3C, 0x3D, 0x3E].contains(glyphs[j]) {
+                    // C folds repha with anusvara / high vowel marks before
+                    // inserting it at the splice (devaline.c:1060–1072).
+                    spliceRepha = true
+                    if glyphs[j] != 0x3D { anusvara = "M" }
+                    j += 1
                 }
             } else if j < glyphs.count,
                       glyphs[j] == UInt8(ascii: "M") || glyphs[j] == UInt8(ascii: "*")
             {
                 // C inserts anusvara at the FontTables splice (`68 4D 22` for haṁ).
                 anusvara = glyphs[j] == UInt8(ascii: "M") ? "M" : "w"
+                j += 1
+                if case .inherentA = entry.vowelClass { vowel = "a" }
+            } else if j < glyphs.count, [0x3C, 0x3D, 0x3E].contains(glyphs[j]) {
+                // e.g. ha's 68 <splice> 22 becomes 68 3C 22 for rhaṁ.
+                spliceRepha = true
+                if glyphs[j] != 0x3D { anusvara = "M" }
                 j += 1
                 if case .inherentA = entry.vowelClass { vowel = "a" }
             } else if j < glyphs.count, glyphs[j] == UInt8(ascii: "R") {
