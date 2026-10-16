@@ -129,3 +129,34 @@ verse/prose modes and the public custom Unicode path. Full Swift tests pass
 (169 core tests plus 52 parity tests). This repairs termination; it does not
 certify malformed source tails or resolve the remaining #20 spelling/spacing
 comparisons. No source text or C comparison fixtures changed.
+
+## SB batch custom-path losses (#20)
+
+The Unicode IAST input adapter now maps right curly apostrophe U+2019 to the
+existing ASCII avagraha control, and NBSP U+00A0 to the existing word-space
+control. Previously these non-ASCII characters reached `LineConversion`, which
+only handles the legacy controls, and were dropped. `so’ham` lost its avagraha;
+`ka ma` lost its word boundary. The adapter does not call Unicode structural prep.
+The existing C boundary rules still decide whether a word space is emitted.
+
+Reverse glyph decoding now recognizes collapsed repha/anusvara marks inside a
+FontTables splice as well as after a letterform. C `devaline.c:1060–1072` combines
+these signs into `<`/`>` (`=` for the corresponding mark without anusvara).
+For example, generated `rhaM` bytes `68 3C 22` previously reconstructed as empty
+text. Vowel-bearing variants and the full `devarṣir haṁsayānena` example have
+explicit regression cases. Glyph generation, layout tables, C parity fixtures,
+and the reader's Unicode conversion path are unchanged.
+
+This is a bounded repair, not complete cross-path certification. Unicode
+structural prep still treats NBSP/curly-apostrophe boundaries differently from
+their ASCII equivalents, and other reverse-glyph/spacing differences remain.
+Keep their complete source-pinned exception inventory; agreement does not grant
+Sanskrit editorial acceptance. Reconcile affected consumers and candidate pins
+before using a new converter revision.
+
+Validation checkpoint: 172 core tests and 52 existing C-parity tests pass. A
+complete 14,546-block EN SB 2–12 API replay keeps every reader Unicode line
+exactly unchanged. It changes 729 custom-path blocks: 50 disagreements resolve,
+649 change from character to spacing-only differences, and 175 character plus
+833 spacing-only differences remain. All 13,488 prior agreements remain agreements.
+This does not repin any canonical candidate or grant editorial acceptance.
