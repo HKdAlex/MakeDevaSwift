@@ -73,6 +73,12 @@ public enum MakeDevaGlyphDecode {
                 i += 1
                 continue
             }
+            if (UInt8(ascii: "0")...UInt8(ascii: "9")).contains(b) {
+                flushPendingHalf(pendingI: &pendingI, pendingHalfCons: &pendingHalfCons, out: &out)
+                out.append(Character(UnicodeScalar(b)))
+                i += 1
+                continue
+            }
             if b == UInt8(ascii: " ") {
                 flushPendingHalf(
                     pendingI: &pendingI, pendingHalfCons: &pendingHalfCons, out: &out)

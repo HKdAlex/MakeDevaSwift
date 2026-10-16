@@ -4,6 +4,19 @@ import Testing
 
 struct LineConversionTests {
     
+    @Test(arguments: [false, true]) func digitsAdvanceAndKeepCustomGlyphBytes(verseFormat: Bool) {
+        // devaline.c SHELL punctuation/digit branch, lines 1449–1491.
+        #expect(LineConversion.convertLine("0123456789", verseFormat: verseFormat).glyphs == Array("0123456789".utf8))
+        let word = LineConversion.convertLine("rAma", verseFormat: verseFormat).glyphs
+        #expect(LineConversion.convertLine("rAma 9", verseFormat: verseFormat).glyphs == word + Array(" 9".utf8))
+        #expect(LineConversion.convertLine("9 rAma", verseFormat: verseFormat).glyphs == Array("9 ".utf8) + word)
+        #expect(LineConversion.convertLine("9, 1.", verseFormat: verseFormat).glyphs == Array("9/ 1//".utf8))
+    }
+
+    @Test func digitInCustomUnicodeComparisonTerminates() {
+        #expect(MakeDevaUnicode.customPathUnicode("rāma 9") == "राम ९")
+    }
+
     // MARK: - Basic Line Conversion Tests
     
     @Test func simpleLine() {
