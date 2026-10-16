@@ -156,7 +156,10 @@ public enum LineConversion {
                 linei += 1
                 continue
                 
-            case UInt8(ascii: " "), UInt8(ascii: ","), UInt8(ascii: "."):
+            case UInt8(ascii: " "), UInt8(ascii: ","), UInt8(ascii: "."),
+                 UInt8(ascii: "0")...UInt8(ascii: "9"):
+                // C emits digits here. The consonant scan stops before them, so
+                // omitting this case leaves linei unchanged indefinitely.
                 // Handle punctuation and spaces - applies to BOTH verse and prose in SHELL mode
                 // (C code: the #ifdef WIN block that skips this for verseformat is NOT in SHELL build)
                 // Output accumulated spaces

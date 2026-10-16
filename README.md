@@ -116,3 +116,16 @@ that witness itself contains omissions/encoding differences and is evidence,
 never replacement content. Focused editorial acceptance remains separate.
 
 Encoding reference: [Unicode 17, Devanagari](https://www.unicode.org/versions/Unicode17.0.0/core-spec/chapter-12/#G1226).
+
+## SB prose digit termination (#22)
+
+The custom glyph loop now passes ASCII digits through exactly as the C SHELL
+punctuation branch does. Previously the syllable scanner stopped before a digit
+without advancing the outer loop, causing unbounded output growth. Reverse
+glyph decoding retains those digit bytes as Unicode Devanagari digits.
+
+Regression coverage includes all ten digits, leading/trailing digits, punctuation,
+verse/prose modes and the public custom Unicode path. Full Swift tests pass
+(169 core tests plus 52 parity tests). This repairs termination; it does not
+certify malformed source tails or resolve the remaining #20 spelling/spacing
+comparisons. No source text or C comparison fixtures changed.
