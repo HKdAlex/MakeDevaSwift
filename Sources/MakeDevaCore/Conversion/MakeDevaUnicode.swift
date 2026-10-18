@@ -18,21 +18,23 @@ public enum MakeDevaUnicode {
     /// Structural prep + literal Sanskrit transliteration to Unicode Devanagari.
     public static func convertLine(_ line: String) -> String {
         let prepared = prepareIAST(line)
-        return transliterateToUnicodeDevanagari(prepared)
+        // Keep stop+h separate until script mapping has fixed token identity.
+        // C fontc half-forms close this word gap; explicit virama d/ṭ/ḍ do not.
+        // Doing this in IAST would invent kh/gh/ch/jh/th/ph/bh aspirates.
+        return transliterateToUnicodeDevanagari(prepared).replacingOccurrences(
+            of: "([कगचजतपब]्) (?=ह)", with: "$1", options: .regularExpression
+        )
     }
 
     /// Structural prep for the **Unicode** branch only (ADR-23).
     ///
-    ///      Delegates to `IndicSandhi.closeSpaces` — whitespace collapse, MakeDeva `isnx`
-    /// *n*-drop, coda-sibilant space-drop, coda-nasal+vowel space-drop, coda-`d`
-    /// leftover-virama keep-space (`br` / `bhr` / non-`dh` `d`), and avagraha space-drop ([#60](https://github.com/HKdAlex/BBText/issues/60),
-    /// [#117](https://github.com/HKdAlex/BBText/issues/117),
-    /// [#120](https://github.com/HKdAlex/BBText/issues/120),
-    /// [#136](https://github.com/HKdAlex/BBText/issues/136),
-    /// [#140](https://github.com/HKdAlex/BBText/issues/140)).
-    /// No HKIndic pairwise joins. Does not apply ICU pre-normalization or script conversion.
+    /// Delegates to IndicSandhi: horizontal whitespace, MakeDeva `isnx`,
+    /// full-cluster coda boundaries and avagraha gaps (BBText ADR-23 / #217).
+    /// Stops before h retain their source word gap to avoid inventing aspirates;
+    /// `convertLine` handles the final half-form gap after literal script mapping.
+    /// No HKIndic pairwise joins or ICU pre-normalization.
     public static func prepareIAST(_ line: String) -> String {
-        IndicSandhi.closeSpaces(in: line, script: .devanagari)
+        IndicSandhi.closeSpaces(in: SanskritUnicode.normalizeLegacyBBT(line), script: .devanagari)
     }
 
     /// Literal Sanskrit script conversion only — caller supplies already-prepared IAST.
@@ -52,9 +54,16 @@ public enum MakeDevaUnicode {
     ///
     /// Does **not** call `prepareIAST` (ADR-23).
     public static func customPathUnicode(_ iast: String) -> String {
-        let ascii = MakeDevaIngest.iastToMakeDevaASCII(iast)
-        let glyphs = LineConversion.convertLine(ascii).glyphs
-        return decodeUnicode(glyphs)
+        // Semicolons are prose punctuation, not Sanskrit consonants. The
+        // legacy font has no semicolon slot: byte 0x3B is the xr__ glyph.
+        // Keep the separator outside glyph conversion, converting both spans
+        // independently so neither adjacent syllable can absorb it. This API
+        // returns Unicode; it does not claim a printable single-font buffer.
+        return iast.components(separatedBy: ";").map { span in
+            let ascii = MakeDevaIngest.iastToMakeDevaASCII(span)
+            let glyphs = LineConversion.convertLine(ascii).glyphs
+            return decodeUnicode(glyphs)
+        }.joined(separator: ";")
     }
 
     /// NFC equality used by the cross-path oracle (documented ignorable equivalence).

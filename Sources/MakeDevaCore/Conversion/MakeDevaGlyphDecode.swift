@@ -9,7 +9,7 @@ import Foundation
 /// | Custom glyph bytes | `LineConversion` / `SyllableConversion` (C `convertline` / `convertsyllable`) | this package |
 /// | Glyph clusters | Swift `FontTables` ported from `devaline.c` `fontu`/`fonta`/`fontc`/… | `Data/FontTables.swift` |
 /// | **Not used** | `devaconv.c` `olddeva[]` (legacy *old* Devanagari font, different encoding) | C-only clipboard tool |
-/// | Unicode rendering | ICU `Latin-Devanagari` after MakeDeva-ASCII → IAST | `MakeDevaUnicode.transliteratePreparedIAST` |
+/// | Unicode rendering | Literal Sanskrit spelling after MakeDeva-ASCII → IAST | `MakeDevaUnicode.transliteratePreparedIAST` |
 ///
 /// `0x20` inside `FontTables` code arrays is a **vowel-sign splice point**, not an emitted
 /// glyph (`SyllableConversion` only emits bytes `> 0x20`). Inter-syllable `0x20` in the
@@ -41,8 +41,23 @@ public enum MakeDevaGlyphDecode {
     /// Decode RM Devanagari glyph codes to Unicode Devanagari.
     public static func decodeUnicode(_ glyphs: [UInt8]) -> String {
         let ascii = reconstructMakeDevaASCII(glyphs)
-        let iast = makeDevaASCIIToIAST(ascii)
-        return MakeDevaUnicode.transliteratePreparedIAST(iast)
+        // ASCII G/T/etc are single aspirated tokens, but g+h/t+h are two
+        // consonants. Flattening both into IAST first would erase that distinction.
+        // Convert at those token boundaries and concatenate logical Unicode;
+        // the preceding chunk supplies its virama, without adding source text
+        // or invisible controls. Glyph spacing remains exactly as reconstructed.
+        let chars = Array(ascii)
+        var chunks: [String] = []
+        var chunk = ""
+        for (index, character) in chars.enumerated() {
+            if character == "h", index > 0, "kgcjqxtdpb".contains(chars[index - 1]) {
+                chunks.append(chunk)
+                chunk = ""
+            }
+            chunk.append(character)
+        }
+        chunks.append(chunk)
+        return chunks.map { MakeDevaUnicode.transliteratePreparedIAST(makeDevaASCIIToIAST($0)) }.joined()
     }
 
     /// Reconstruct MakeDeva ASCII (Harvard-Kyoto-like) from glyph codes.
@@ -51,6 +66,7 @@ public enum MakeDevaGlyphDecode {
         var i = 0
         var pendingI = false
         var pendingHalfCons = ""
+        var lastClusterStart: String.Index?
 
         while i < glyphs.count {
             let b = glyphs[i]
@@ -147,9 +163,13 @@ public enum MakeDevaGlyphDecode {
             // Same syllable as the preceding letterform (conjunct), not a new `ya`
             // with inherent a — `khya` not `khaya` (`sāṅkhyānāṁ`).
             if b == UInt8(ascii: "Y"), i + 1 < glyphs.count, glyphs[i + 1] == UInt8(ascii: "a") {
-                if out.last == "a" {
-                    out.removeLast()
+                if out.last == "a", let start = lastClusterStart {
+                    // C appends yafter to this same cluster. Carry the whole
+                    // consonant group so a following repha precedes all of it.
+                    pendingHalfCons = String(out[start...].dropLast())
+                    out.removeSubrange(start...)
                 }
+                lastClusterStart = out.endIndex
                 var consumed = 2
                 var vowel: Character? = "a"
                 (vowel, consumed) = applyAiafter(glyphs, at: i, consumed: consumed, vowel: vowel)
@@ -180,8 +200,10 @@ public enum MakeDevaGlyphDecode {
                 }
                 (vowel, consumed) = applyTrailingLetterformVowelSign(
                     glyphs, at: i, consumed: consumed, vowel: vowel)
+                lastClusterStart = out.endIndex
                 emitCluster(
                     cons: match.transliteration,
+                    splicedRepha: match.splicedRepha,
                     vowel: vowel,
                     vowelClass: match.vowelClass,
                     anusvara: match.anusvara,
@@ -298,6 +320,7 @@ public enum MakeDevaGlyphDecode {
     /// preceding fontc half-consonant (`nti` → `69 6E 74 61`).
     private static func emitCluster(
         cons: String,
+        splicedRepha: Bool = false,
         vowel: Character?,
         vowelClass: VowelClass,
         anusvara: Character?,
@@ -329,7 +352,7 @@ public enum MakeDevaGlyphDecode {
         // fontc half-consonant is the rest of the same conjunct (`t`+`mA`+`R` → `rtmA`,
         // not `trmA`). Prefix `r` in front of the whole cluster.
         var syllable: String
-        if marked.prefixedRepha, !pendingHalfCons.isEmpty, marked.cons.first == "r" {
+        if (marked.prefixedRepha || splicedRepha), !pendingHalfCons.isEmpty, marked.cons.first == "r" {
             syllable = "r" + pendingHalfCons + String(marked.cons.dropFirst())
         } else {
             syllable = pendingHalfCons + marked.cons
@@ -373,6 +396,10 @@ public enum MakeDevaGlyphDecode {
             return j < glyphs.count ? glyphs[j] : nil
         }
 
+        // C devaline.c special fontR/fontY codes 1/2 expand to a vocalic
+        // vowel letterform with repha inside its splice, not a bare vowel.
+        if rest >= 3, at(0) == 0x5B, at(1) == 0x52, at(2) == 0x25 { return (3, "rR") }
+        if rest >= 3, at(0) == 0x5C, at(1) == 0x52, at(2) == 0x23 { return (3, "rY") }
         // Longest first.
         if rest >= 3, at(0) == 0x40, at(1) == 0x41, at(2) == UInt8(ascii: "E") { return (3, "O") }
         if rest >= 3, at(0) == 0x40, at(1) == 0x41, at(2) == UInt8(ascii: "e") { return (3, "o") }
@@ -405,6 +432,7 @@ public enum MakeDevaGlyphDecode {
         let vowelClass: VowelClass
         let consumed: Int
         let anusvara: Character?
+        var splicedRepha: Bool = false
     }
 
     private struct ReverseEntry {
@@ -478,7 +506,8 @@ public enum MakeDevaGlyphDecode {
     private static let spliceVowel: [UInt8: Character] = [
         0x41: "A",
         0x49: "I",
-        0x69: "i",
+        // Short-i is prefixed by C (devaline.c:1046), never a splice vowel.
+        // Consuming it here steals the next cluster's vowel after e.g. śṛ.
         0x75: "u",
         0x55: "U",
         0x65: "e",
@@ -524,12 +553,24 @@ public enum MakeDevaGlyphDecode {
                 if j < glyphs.count, glyphs[j] == UInt8(ascii: "R") {
                     spliceRepha = true
                     j += 1
+                } else if j < glyphs.count, [0x3C, 0x3D, 0x3E].contains(glyphs[j]) {
+                    // C folds repha with anusvara / high vowel marks before
+                    // inserting it at the splice (devaline.c:1060–1072).
+                    spliceRepha = true
+                    if glyphs[j] != 0x3D { anusvara = "M" }
+                    j += 1
                 }
             } else if j < glyphs.count,
                       glyphs[j] == UInt8(ascii: "M") || glyphs[j] == UInt8(ascii: "*")
             {
                 // C inserts anusvara at the FontTables splice (`68 4D 22` for haṁ).
                 anusvara = glyphs[j] == UInt8(ascii: "M") ? "M" : "w"
+                j += 1
+                if case .inherentA = entry.vowelClass { vowel = "a" }
+            } else if j < glyphs.count, [0x3C, 0x3D, 0x3E].contains(glyphs[j]) {
+                // e.g. ha's 68 <splice> 22 becomes 68 3C 22 for rhaṁ.
+                spliceRepha = true
+                if glyphs[j] != 0x3D { anusvara = "M" }
                 j += 1
                 if case .inherentA = entry.vowelClass { vowel = "a" }
             } else if j < glyphs.count, glyphs[j] == UInt8(ascii: "R") {
@@ -550,13 +591,32 @@ public enum MakeDevaGlyphDecode {
                     vowel: resolved,
                     vowelClass: vowelClass,
                     consumed: j - i,
-                    anusvara: anusvara
+                    anusvara: anusvara,
+                    splicedRepha: true
                 )
             } else if case .inherentA = entry.vowelClass {
                 vowel = "a"
             }
-            guard matches(entry.suffix, glyphs: glyphs, at: j) else { return nil }
-            j += entry.suffix.count
+            // C devaline.c:1137–1162 consumes a spacing suffix to place
+            // anusvara: distance bytes + mark + optional remaining distance.
+            // Keep this narrow: one distance-only suffix and an actual mark.
+            if entry.suffix.count == 1, isDistanceCode(entry.suffix[0]),
+               j < glyphs.count, isDistanceCode(glyphs[j]) {
+                var markIndex = j
+                while markIndex < glyphs.count, isDistanceCode(glyphs[markIndex]) { markIndex += 1 }
+                if markIndex < glyphs.count,
+                   glyphs[markIndex] == UInt8(ascii: "M") || glyphs[markIndex] == UInt8(ascii: "*") {
+                    anusvara = glyphs[markIndex] == UInt8(ascii: "M") ? "M" : "w"
+                    j = markIndex + 1
+                    while j < glyphs.count, isDistanceCode(glyphs[j]) { j += 1 }
+                } else {
+                    guard matches(entry.suffix, glyphs: glyphs, at: j) else { return nil }
+                    j += entry.suffix.count
+                }
+            } else {
+                guard matches(entry.suffix, glyphs: glyphs, at: j) else { return nil }
+                j += entry.suffix.count
+            }
         } else {
             switch entry.vowelClass {
             case .inherentA:
@@ -587,7 +647,8 @@ public enum MakeDevaGlyphDecode {
             vowel: resolved,
             vowelClass: vowelClass,
             consumed: j - i,
-            anusvara: anusvara
+            anusvara: anusvara,
+            splicedRepha: spliceRepha
         )
     }
 

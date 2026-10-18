@@ -14,7 +14,9 @@
 40 41 65	ओ	o
 6B 28 20 6D 61	क म	ka ma
 69 6B 28	कि	ki
-E4 2C 22 68 22 6D 61 52	धर्म	dharma
+# Corrected 2026-10-18: E4 2C is dead dental d, not aspirated D (C fontc).
+E4 2C 22 68 22 6D 61 52	द्हर्म	d+harma glyphs
+44 61 6D 61 52	धर्म	Darma actual aspirated glyphs
 99 61 49	श्री	ZrI
 44 61 7B	धृ	DR
 6D 61 2C	म्	m + C virama comma

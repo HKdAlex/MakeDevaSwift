@@ -6,8 +6,14 @@ import Foundation
 /// assimilate explicit nasals, or consume avagraha. See MakeDevaSwift #20.
 /// Unknown characters are retained, never silently deleted.
 enum SanskritUnicode {
+    /// House legacy spelling: BBT 0x8f / MakeDeva V denotes candrabindu + l.
+    /// Expand before boundary handling as well as literal conversion.
+    static func normalizeLegacyBBT(_ input: String) -> String {
+        input.precomposedStringWithCanonicalMapping.replacingOccurrences(of: "ḻ", with: "m̐l")
+    }
+
     static func transliterate(_ input: String) -> String {
-        let text = input.precomposedStringWithCanonicalMapping
+        let text = normalizeLegacyBBT(input)
         var index = text.startIndex
         var output = ""
         var pendingConsonant = false
