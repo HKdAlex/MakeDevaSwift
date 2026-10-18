@@ -3,6 +3,19 @@ import Testing
 @testable import MakeDevaCore
 
 struct SBBatchConversionTests {
+    @Test func avagrahaAnusvaraGlyphOrderIsNotAnInvertibleTextEncoding() {
+        // C devaline.c:1576–1587 looks beyond avagraha and attaches M
+        // to the preceding vowel. Different logical inputs share glyphs.
+        let before = "brahmaṇoṁ 'śena"
+        let after = "brahmaṇo 'ṁśena"
+        let a = LineConversion.convertLine(MakeDevaIngest.iastToMakeDevaASCII(before)).glyphs
+        let b = LineConversion.convertLine(MakeDevaIngest.iastToMakeDevaASCII(after)).glyphs
+        #expect(a == b)
+        #expect(MakeDevaUnicode.convertLine(before) == "ब्रह्मणोंऽशेन")
+        #expect(MakeDevaUnicode.convertLine(after) == "ब्रह्मणोऽंशेन")
+        #expect(MakeDevaUnicode.customPathUnicode(before) == MakeDevaUnicode.customPathUnicode(after))
+    }
+
     @Test func shortIOnRaDoesNotLeakAcrossSpace() {
         for (input, expected) in [("ri", "रि"), ("hariṁ", "हरिं"), ("hariṁ gehāt", "हरिं गेहात्")] {
             #expect(MakeDevaUnicode.customPathUnicode(input) == expected)

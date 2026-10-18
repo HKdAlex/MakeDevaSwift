@@ -182,3 +182,15 @@ decode now recognizes this exact shape. Previously `hariṁ gehāt` decoded as
 The real conversion regression now yields `हरिं गेहात्`; 176 core tests pass.
 This changes only reverse decoding, not glyph generation or reader Unicode.
 Full corpus replay is required before candidate refresh.
+
+### Glyph decoding is not a lossless text round-trip
+
+The legacy C lookahead (`devaline.c:1576–1587`) attaches anusvara after avagraha
+to the preceding vowel for typesetting. The real shared pipeline produces the
+same glyph bytes for `brahmaṇoṁ 'śena` and `brahmaṇo 'ṁśena`, although literal
+Unicode correctly distinguishes `ब्रह्मणोंऽशेन` and `ब्रह्मणोऽंशेन`.
+A regression test proves this collision. Do not globally swap decoded marks to
+force agreement: that would corrupt the first input. Preserve source IAST and
+use the literal Unicode path for logical text; glyph reverse decoding remains
+a diagnostic aid with this explicit limitation. Source-aware reconstruction or
+a provenance sidecar would be needed for a guaranteed round-trip.
