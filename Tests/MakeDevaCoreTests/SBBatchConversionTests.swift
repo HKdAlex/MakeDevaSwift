@@ -3,6 +3,17 @@ import Testing
 @testable import MakeDevaCore
 
 struct SBBatchConversionTests {
+    @Test func prefixedShortIBelongsToNextCluster() {
+        #expect(MakeDevaUnicode.customPathUnicode("śṛṅgidaṁṣṭriṇām") == "शृङ्गिदंष्ट्रिणाम्")
+        #expect(MakeDevaUnicode.customPathUnicode("śṛ gi") == "शृ गि")
+    }
+
+    @Test func rephaOnTrailingYaBelongsToWholeConjunct() {
+        for (input, expected) in [("rddhyā", "र्द्ध्या"), ("rṣṭya", "र्ष्ट्य"), ("ddhyā", "द्ध्या"), ("ṣṭya", "ष्ट्य")] {
+            #expect(MakeDevaUnicode.customPathUnicode(input) == expected)
+        }
+    }
+
     @Test func avagrahaAnusvaraGlyphOrderIsNotAnInvertibleTextEncoding() {
         // C devaline.c:1576–1587 looks beyond avagraha and attaches M
         // to the preceding vowel. Different logical inputs share glyphs.

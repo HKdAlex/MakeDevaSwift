@@ -51,6 +51,7 @@ public enum MakeDevaGlyphDecode {
         var i = 0
         var pendingI = false
         var pendingHalfCons = ""
+        var lastClusterStart: String.Index?
 
         while i < glyphs.count {
             let b = glyphs[i]
@@ -147,9 +148,13 @@ public enum MakeDevaGlyphDecode {
             // Same syllable as the preceding letterform (conjunct), not a new `ya`
             // with inherent a — `khya` not `khaya` (`sāṅkhyānāṁ`).
             if b == UInt8(ascii: "Y"), i + 1 < glyphs.count, glyphs[i + 1] == UInt8(ascii: "a") {
-                if out.last == "a" {
-                    out.removeLast()
+                if out.last == "a", let start = lastClusterStart {
+                    // C appends yafter to this same cluster. Carry the whole
+                    // consonant group so a following repha precedes all of it.
+                    pendingHalfCons = String(out[start...].dropLast())
+                    out.removeSubrange(start...)
                 }
+                lastClusterStart = out.endIndex
                 var consumed = 2
                 var vowel: Character? = "a"
                 (vowel, consumed) = applyAiafter(glyphs, at: i, consumed: consumed, vowel: vowel)
@@ -180,6 +185,7 @@ public enum MakeDevaGlyphDecode {
                 }
                 (vowel, consumed) = applyTrailingLetterformVowelSign(
                     glyphs, at: i, consumed: consumed, vowel: vowel)
+                lastClusterStart = out.endIndex
                 emitCluster(
                     cons: match.transliteration,
                     splicedRepha: match.splicedRepha,
@@ -485,7 +491,8 @@ public enum MakeDevaGlyphDecode {
     private static let spliceVowel: [UInt8: Character] = [
         0x41: "A",
         0x49: "I",
-        0x69: "i",
+        // Short-i is prefixed by C (devaline.c:1046), never a splice vowel.
+        // Consuming it here steals the next cluster's vowel after e.g. śṛ.
         0x75: "u",
         0x55: "U",
         0x65: "e",

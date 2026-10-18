@@ -194,3 +194,13 @@ force agreement: that would corrupt the first input. Preserve source IAST and
 use the literal Unicode path for logical text; glyph reverse decoding remains
 a diagnostic aid with this explicit limitation. Source-aware reconstruction or
 a provenance sidecar would be needed for a guaranteed round-trip.
+
+### Trailing-ya repha and next-cluster short-i (2026-10-18)
+
+Reverse decoding retains the full preceding consonant cluster when C emits
+`yafter`, so repha applies to the whole conjunct (`rddhyā` → `र्द्ध्या`,
+`rṣṭya` → `र्ष्ट्य`). It also treats short-i only as a prefixed sign, as
+C `devaline.c:1046` emits it, never as a splice vowel belonging to a preceding
+fixed-vowel cluster (`śṛṅgidaṁṣṭriṇām` → `शृङ्गिदंष्ट्रिणाम्`). Both defects
+were reproduced in failing real-path regressions; all 179 core tests pass.
+Glyph generation and literal reader Unicode are unchanged.
