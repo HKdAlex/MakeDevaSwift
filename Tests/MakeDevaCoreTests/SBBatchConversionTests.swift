@@ -36,4 +36,18 @@ struct SBBatchConversionTests {
         #expect(MakeDevaUnicode.customPathUnicode("rhe") == "र्हे")
         #expect(MakeDevaUnicode.customPathUnicode("rhīṁ") == "र्हीं")
     }
+    @Test func vocalicRWithRephaSurvivesReverseDecode() {
+        for (input, expected) in [("rṛ", "रृ"), ("rṝ", "रॄ"), ("nirṛtiṁ", "निरृतिं")] {
+            #expect(MakeDevaUnicode.customPathUnicode(input) == expected)
+        }
+        #expect(MakeDevaGlyphDecode.reconstructMakeDevaASCII([0x5B, 0x52, 0x25]) == "rR")
+        #expect(MakeDevaGlyphDecode.reconstructMakeDevaASCII([0x5C, 0x52, 0x23]) == "rY")
+    }
+
+    @Test func splicedRephaPrecedesWholeConjunct() {
+        for (input, expected) in [("rccha", "र्च्छ"), ("mūrcchitena", "मूर्च्छितेन"), ("ccha", "च्छ")] {
+            #expect(MakeDevaUnicode.customPathUnicode(input) == expected)
+        }
+        #expect(MakeDevaGlyphDecode.reconstructMakeDevaASCII([0x63, 0x43, 0x52, 0x24]) == "rcCa")
+    }
 }

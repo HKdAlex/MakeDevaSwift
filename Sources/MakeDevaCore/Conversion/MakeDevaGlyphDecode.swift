@@ -182,6 +182,7 @@ public enum MakeDevaGlyphDecode {
                     glyphs, at: i, consumed: consumed, vowel: vowel)
                 emitCluster(
                     cons: match.transliteration,
+                    splicedRepha: match.splicedRepha,
                     vowel: vowel,
                     vowelClass: match.vowelClass,
                     anusvara: match.anusvara,
@@ -298,6 +299,7 @@ public enum MakeDevaGlyphDecode {
     /// preceding fontc half-consonant (`nti` → `69 6E 74 61`).
     private static func emitCluster(
         cons: String,
+        splicedRepha: Bool = false,
         vowel: Character?,
         vowelClass: VowelClass,
         anusvara: Character?,
@@ -329,7 +331,7 @@ public enum MakeDevaGlyphDecode {
         // fontc half-consonant is the rest of the same conjunct (`t`+`mA`+`R` → `rtmA`,
         // not `trmA`). Prefix `r` in front of the whole cluster.
         var syllable: String
-        if marked.prefixedRepha, !pendingHalfCons.isEmpty, marked.cons.first == "r" {
+        if (marked.prefixedRepha || splicedRepha), !pendingHalfCons.isEmpty, marked.cons.first == "r" {
             syllable = "r" + pendingHalfCons + String(marked.cons.dropFirst())
         } else {
             syllable = pendingHalfCons + marked.cons
@@ -373,6 +375,10 @@ public enum MakeDevaGlyphDecode {
             return j < glyphs.count ? glyphs[j] : nil
         }
 
+        // C devaline.c special fontR/fontY codes 1/2 expand to a vocalic
+        // vowel letterform with repha inside its splice, not a bare vowel.
+        if rest >= 3, at(0) == 0x5B, at(1) == 0x52, at(2) == 0x25 { return (3, "rR") }
+        if rest >= 3, at(0) == 0x5C, at(1) == 0x52, at(2) == 0x23 { return (3, "rY") }
         // Longest first.
         if rest >= 3, at(0) == 0x40, at(1) == 0x41, at(2) == UInt8(ascii: "E") { return (3, "O") }
         if rest >= 3, at(0) == 0x40, at(1) == 0x41, at(2) == UInt8(ascii: "e") { return (3, "o") }
@@ -405,6 +411,7 @@ public enum MakeDevaGlyphDecode {
         let vowelClass: VowelClass
         let consumed: Int
         let anusvara: Character?
+        var splicedRepha: Bool = false
     }
 
     private struct ReverseEntry {
@@ -562,7 +569,8 @@ public enum MakeDevaGlyphDecode {
                     vowel: resolved,
                     vowelClass: vowelClass,
                     consumed: j - i,
-                    anusvara: anusvara
+                    anusvara: anusvara,
+                    splicedRepha: true
                 )
             } else if case .inherentA = entry.vowelClass {
                 vowel = "a"
@@ -599,7 +607,8 @@ public enum MakeDevaGlyphDecode {
             vowel: resolved,
             vowelClass: vowelClass,
             consumed: j - i,
-            anusvara: anusvara
+            anusvara: anusvara,
+            splicedRepha: spliceRepha
         )
     }
 
