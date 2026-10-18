@@ -3,6 +3,13 @@ import Testing
 @testable import MakeDevaCore
 
 struct SBBatchConversionTests {
+    @Test func sourceWordGapDoesNotBecomeAspiration() {
+        #expect(MakeDevaUnicode.convertLine("āsīd hradaḥ") == "आसीद् ह्रदः")
+        #expect(MakeDevaUnicode.convertLine("prāvṛḍ himaiḥ") == "प्रावृड् हिमैः")
+        #expect(MakeDevaUnicode.convertLine("dhā") == "धा")
+        #expect(MakeDevaUnicode.convertLine("ḍhā") == "ढा")
+    }
+
     @Test func prefixedShortIBelongsToNextCluster() {
         #expect(MakeDevaUnicode.customPathUnicode("śṛṅgidaṁṣṭriṇām") == "शृङ्गिदंष्ट्रिणाम्")
         #expect(MakeDevaUnicode.customPathUnicode("śṛ gi") == "शृ गि")
