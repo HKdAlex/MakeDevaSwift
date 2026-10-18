@@ -32,7 +32,7 @@ public enum MakeDevaUnicode {
     /// [#140](https://github.com/HKdAlex/BBText/issues/140)).
     /// No HKIndic pairwise joins. Does not apply ICU pre-normalization or script conversion.
     public static func prepareIAST(_ line: String) -> String {
-        IndicSandhi.closeSpaces(in: line, script: .devanagari)
+        IndicSandhi.closeSpaces(in: SanskritUnicode.normalizeLegacyBBT(line), script: .devanagari)
     }
 
     /// Literal Sanskrit script conversion only — caller supplies already-prepared IAST.

@@ -160,3 +160,15 @@ exactly unchanged. It changes 729 custom-path blocks: 50 disagreements resolve,
 649 change from character to spacing-only differences, and 175 character plus
 833 spacing-only differences remain. All 13,488 prior agreements remain agreements.
 This does not repin any canonical candidate or grant editorial acceptance.
+
+### Legacy BBT nasal-l spelling (2026-10-18)
+
+Unicode U+1E3B (`ḻ`) is interpreted using the established BBT convention:
+`bbtToUnicode[0x8f]` maps this character, `charconv[15]` maps to `V`, and
+`makedeva.c:1059` expands `V` to `wl` (commented “l candra bindu”).
+Both Unicode and custom ingest now preserve this mark and consonant. Unicode
+structural preparation expands it before spacing rules; prepared literal conversion
+also supports it. This is distinct from the existing explicit `l̐` spelling.
+NFC/decomposed input is tested. All 175 core and 52 existing C-parity tests pass.
+The 25 affected SB passages require an explicit changed-output inventory and
+editorial review; this repair does not itself qualify the books.

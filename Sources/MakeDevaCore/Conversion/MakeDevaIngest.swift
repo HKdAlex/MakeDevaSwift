@@ -40,6 +40,8 @@ public enum MakeDevaIngest {
         // LineConversion handles the boundary; do not run Unicode structural prep here.
         ("’", "'"), ("\u{00A0}", " "),
         ("m̐", "w"),
+        // Legacy BBT U+1E3B -> byte 0x8f -> V -> wl (makedeva.c).
+        ("ḻ", "wl"),
         // C Harvard-Kyoto `V` expands to `wl` (anunasika then `l`). Unicode IAST `l̐`
         // is coda `l` + candrabindu, so ingest is `lw` — otherwise a preceding vowel
         // steals `w` as anunasika (`vAwl` → वाँल, not ICU `वाल्̐`).

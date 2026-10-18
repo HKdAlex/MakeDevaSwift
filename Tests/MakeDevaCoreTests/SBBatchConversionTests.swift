@@ -3,6 +3,17 @@ import Testing
 @testable import MakeDevaCore
 
 struct SBBatchConversionTests {
+    @Test func legacyBBTNasalLReachesBothPaths() {
+        // BBT Unicode U+1E3B -> byte 0x8f -> V -> wl in makedeva.c.
+        #expect(EncodingTables.bbtToUnicode[0x8f] == 0x1e3b)
+        #expect(EncodingTables.charConv[0x0f] == 0x56)
+        #expect(MakeDevaIngest.iastToMakeDevaASCII("bhagavaḻ liṅgaiḥ") == "Bagavawl liFgEH")
+        for input in ["bhagavaḻ liṅgaiḥ", "bhagaval\u{0331} liṅgaiḥ"] {
+            #expect(MakeDevaUnicode.convertLine(input) == "भगवँल्लिङ्गैः")
+            #expect(MakeDevaUnicode.customPathUnicode(input) == "भगवँल्लिङ्गैः")
+        }
+    }
+
     @Test func unicodeAvagrahaSpellingsReachCustomPath() {
         // SB 8.1.1 uses a curly apostrophe; the existing straight form is the control.
         for input in ["so'ham", "so’ham", "so ’ham", "so\u{00a0}’ham"] {
