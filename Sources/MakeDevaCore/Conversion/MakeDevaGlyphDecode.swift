@@ -575,8 +575,26 @@ public enum MakeDevaGlyphDecode {
             } else if case .inherentA = entry.vowelClass {
                 vowel = "a"
             }
-            guard matches(entry.suffix, glyphs: glyphs, at: j) else { return nil }
-            j += entry.suffix.count
+            // C devaline.c:1137–1162 consumes a spacing suffix to place
+            // anusvara: distance bytes + mark + optional remaining distance.
+            // Keep this narrow: one distance-only suffix and an actual mark.
+            if entry.suffix.count == 1, isDistanceCode(entry.suffix[0]),
+               j < glyphs.count, isDistanceCode(glyphs[j]) {
+                var markIndex = j
+                while markIndex < glyphs.count, isDistanceCode(glyphs[markIndex]) { markIndex += 1 }
+                if markIndex < glyphs.count,
+                   glyphs[markIndex] == UInt8(ascii: "M") || glyphs[markIndex] == UInt8(ascii: "*") {
+                    anusvara = glyphs[markIndex] == UInt8(ascii: "M") ? "M" : "w"
+                    j = markIndex + 1
+                    while j < glyphs.count, isDistanceCode(glyphs[j]) { j += 1 }
+                } else {
+                    guard matches(entry.suffix, glyphs: glyphs, at: j) else { return nil }
+                    j += entry.suffix.count
+                }
+            } else {
+                guard matches(entry.suffix, glyphs: glyphs, at: j) else { return nil }
+                j += entry.suffix.count
+            }
         } else {
             switch entry.vowelClass {
             case .inherentA:

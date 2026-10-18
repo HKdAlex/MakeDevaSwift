@@ -3,6 +3,13 @@ import Testing
 @testable import MakeDevaCore
 
 struct SBBatchConversionTests {
+    @Test func shortIOnRaDoesNotLeakAcrossSpace() {
+        for (input, expected) in [("ri", "रि"), ("hariṁ", "हरिं"), ("hariṁ gehāt", "हरिं गेहात्")] {
+            #expect(MakeDevaUnicode.customPathUnicode(input) == expected)
+        }
+        #expect(MakeDevaGlyphDecode.reconstructMakeDevaASCII([0x69, 0x72, 0x24, 0x4D]) == "riM")
+    }
+
     @Test func legacyBBTNasalLReachesBothPaths() {
         // BBT Unicode U+1E3B -> byte 0x8f -> V -> wl in makedeva.c.
         #expect(EncodingTables.bbtToUnicode[0x8f] == 0x1e3b)

@@ -172,3 +172,13 @@ also supports it. This is distinct from the existing explicit `l̐` spelling.
 NFC/decomposed input is tested. All 175 core and 52 existing C-parity tests pass.
 The 25 affected SB passages require an explicit changed-output inventory and
 editorial review; this repair does not itself qualify the books.
+
+### Distance-spliced anusvara reverse decoding (2026-10-18)
+
+C `devaline.c:1137–1162` can consume a single distance suffix while positioning
+anusvara, emitting distance bytes, the mark and any remaining distance. Reverse
+decode now recognizes this exact shape. Previously `hariṁ gehāt` decoded as
+`हं गिहात्`: the missed ra left short-i pending across the word boundary.
+The real conversion regression now yields `हरिं गेहात्`; 176 core tests pass.
+This changes only reverse decoding, not glyph generation or reader Unicode.
+Full corpus replay is required before candidate refresh.
