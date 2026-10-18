@@ -218,3 +218,15 @@ The old `E4 2C 22 68 22 6D 61 52` fixture mislabeled dead dental d+h as धर�
 It now expects द्हर्म, retaining the exact glyph bytes. A second fixture uses
 the actual aspirated bytes `44 61 6D 61 52` → धर्म. C fontc d and fonta D
 confirm the distinction; all 181 core tests pass.
+
+### Prose semicolons in Unicode comparison
+
+`MakeDevaUnicode.customPathUnicode` retains semicolons as literal Unicode
+separators and converts each surrounding span through the legacy glyph path.
+The C-compatible raw glyph converter cannot represent this separator as byte
+0x3B: that slot is `xr__`. Feeding a semicolon directly into its consonant scan
+can lose adjacent letters. The Unicode comparison API therefore does not claim
+a single-font printable glyph buffer. Print/custom-font callers still need a
+mixed-font punctuation representation or an explicit unsupported-input diagnostic;
+this remains tracked under #20. Ordinary Unicode `convertLine` preserves these
+source punctuation marks independently.

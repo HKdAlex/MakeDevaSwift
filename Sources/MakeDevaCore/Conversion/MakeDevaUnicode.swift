@@ -52,9 +52,16 @@ public enum MakeDevaUnicode {
     ///
     /// Does **not** call `prepareIAST` (ADR-23).
     public static func customPathUnicode(_ iast: String) -> String {
-        let ascii = MakeDevaIngest.iastToMakeDevaASCII(iast)
-        let glyphs = LineConversion.convertLine(ascii).glyphs
-        return decodeUnicode(glyphs)
+        // Semicolons are prose punctuation, not Sanskrit consonants. The
+        // legacy font has no semicolon slot: byte 0x3B is the xr__ glyph.
+        // Keep the separator outside glyph conversion, converting both spans
+        // independently so neither adjacent syllable can absorb it. This API
+        // returns Unicode; it does not claim a printable single-font buffer.
+        return iast.components(separatedBy: ";").map { span in
+            let ascii = MakeDevaIngest.iastToMakeDevaASCII(span)
+            let glyphs = LineConversion.convertLine(ascii).glyphs
+            return decodeUnicode(glyphs)
+        }.joined(separator: ";")
     }
 
     /// NFC equality used by the cross-path oracle (documented ignorable equivalence).

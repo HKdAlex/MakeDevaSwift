@@ -3,6 +3,13 @@ import Testing
 @testable import MakeDevaCore
 
 struct SBBatchConversionTests {
+    @Test func proseSemicolonPreservesAdjacentLetters() {
+        for (input, expected) in [("rūpanirūpaṇam;", "रूपनिरूपणम्;"), ("visasarja; evaṁ", "विससर्ज; एवं")] {
+            #expect(MakeDevaUnicode.customPathUnicode(input) == expected)
+            #expect(MakeDevaUnicode.convertLine(input) == expected)
+        }
+    }
+
     @Test func reverseAsciiStopAndHStayDistinctFromAspiratedToken() {
         for (plain, aspirated, expectedPlain, expectedAspirated) in [
             ("g h", "gh", "ग्ह्", "घ्"), ("t h", "th", "त्ह्", "थ्")
