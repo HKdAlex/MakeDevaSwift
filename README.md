@@ -57,7 +57,7 @@ let deva = MakeDevaUnicode.decodeUnicode(glyphs)  // → कृष्ण
 Trailing `0x2C` after a letterform is C virama (not Latin comma).
 Goldens: `Tests/Fixtures/glyph-decode/cases.tsv`
 
-Cross-path E2E (`Unicode(prepare(ℓ)) ≡ decodeUnicode(customPath(ℓ))`) is IU-59.
+Cross-path E2E (`convertLine(ℓ) ≡ customPathUnicode(ℓ)`) is IU-59.
 
 ### Custom path
 
@@ -230,3 +230,13 @@ a single-font printable glyph buffer. Print/custom-font callers still need a
 mixed-font punctuation representation or an explicit unsupported-input diagnostic;
 this remains tracked under #20. Ordinary Unicode `convertLine` preserves these
 source punctuation marks independently.
+
+### C-derived word boundaries (#20, BBText #217)
+
+BBText IndicSandhi chooses d/ṭ/ḍ/ṅ word spaces from full-cluster/vowel metadata,
+matching C's leftover explicit-virama rule. Unaspirated stop+h stays separate in
+prepared IAST. `convertLine` then closes the gap after क्/ग्/च्/ज्/त्/प्/ब् only
+once literal script mapping has fixed the consonant identity; द्/ट्/ड् keep it.
+`transliteratePreparedIAST` remains a literal API and does not perform this final
+boundary operation. This avoids inventing aspirates, invisible separators, or
+source spelling changes. Custom glyph conversion is unchanged.

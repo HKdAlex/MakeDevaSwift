@@ -4,6 +4,25 @@ import Testing
 
 struct MakeDevaUnicodeTests {
 
+    @Test("C half-form boundaries close only after source consonants are explicit")
+    func unaspiratedHBoundary() {
+        for (iast, deva) in [("k", "क"), ("g", "ग"), ("c", "च"), ("j", "ज"),
+                             ("t", "त"), ("p", "प"), ("b", "ब")] {
+            #expect(MakeDevaUnicode.prepareIAST(iast + " ha") == iast + " ha")
+            #expect(MakeDevaUnicode.transliteratePreparedIAST(iast + " ha") == deva + "् ह")
+            #expect(MakeDevaUnicode.convertLine(iast + " ha") == deva + "्ह")
+            #expect(MakeDevaUnicode.convertLine(iast + " ha") == MakeDevaUnicode.customPathUnicode(iast + " ha"))
+            #expect(MakeDevaUnicode.convertLine(iast + "ha") != deva + "्ह")
+        }
+        for (iast, deva) in [("d", "द"), ("ṭ", "ट"), ("ḍ", "ड")] {
+            #expect(MakeDevaUnicode.convertLine(iast + " ha") == deva + "् ह")
+            #expect(MakeDevaUnicode.convertLine(iast + " ha") == MakeDevaUnicode.customPathUnicode(iast + " ha"))
+        }
+        #expect(MakeDevaUnicode.convertLine("svadṛg hetuḥ") == "स्वदृग्हेतुः")
+        #expect(MakeDevaUnicode.convertLine("vidyāt hiṁsām") == "विद्यात्हिंसाम्")
+        #expect(MakeDevaUnicode.convertLine("k\nha") == "क्\nह")
+    }
+
     // MARK: - Structural prep (Unicode branch only)
 
     @Test("prepareIAST collapses whitespace and does not pairwise-join")
