@@ -3,6 +3,17 @@ import Testing
 @testable import MakeDevaCore
 
 struct SBBatchConversionTests {
+    @Test func reverseAsciiStopAndHStayDistinctFromAspiratedToken() {
+        for (plain, aspirated, expectedPlain, expectedAspirated) in [
+            ("g h", "gh", "ग्ह्", "घ्"), ("t h", "th", "त्ह्", "थ्")
+        ] {
+            #expect(MakeDevaUnicode.customPathUnicode(plain) == expectedPlain)
+            #expect(MakeDevaUnicode.customPathUnicode(aspirated) == expectedAspirated)
+        }
+        #expect(MakeDevaUnicode.customPathUnicode("svadṛg hetur") == "स्वदृग्हेतुर्")
+        #expect(MakeDevaUnicode.customPathUnicode("vidyāt hiṁsām") == "विद्यात्हिंसाम्")
+    }
+
     @Test func sourceWordGapDoesNotBecomeAspiration() {
         #expect(MakeDevaUnicode.convertLine("āsīd hradaḥ") == "आसीद् ह्रदः")
         #expect(MakeDevaUnicode.convertLine("prāvṛḍ himaiḥ") == "प्रावृड् हिमैः")

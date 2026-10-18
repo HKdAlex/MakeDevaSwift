@@ -41,8 +41,23 @@ public enum MakeDevaGlyphDecode {
     /// Decode RM Devanagari glyph codes to Unicode Devanagari.
     public static func decodeUnicode(_ glyphs: [UInt8]) -> String {
         let ascii = reconstructMakeDevaASCII(glyphs)
-        let iast = makeDevaASCIIToIAST(ascii)
-        return MakeDevaUnicode.transliteratePreparedIAST(iast)
+        // ASCII G/T/etc are single aspirated tokens, but g+h/t+h are two
+        // consonants. Flattening both into IAST first would erase that distinction.
+        // Convert at those token boundaries and concatenate logical Unicode;
+        // the preceding chunk supplies its virama, without adding source text
+        // or invisible controls. Glyph spacing remains exactly as reconstructed.
+        let chars = Array(ascii)
+        var chunks: [String] = []
+        var chunk = ""
+        for (index, character) in chars.enumerated() {
+            if character == "h", index > 0, "kgcjqxtdpb".contains(chars[index - 1]) {
+                chunks.append(chunk)
+                chunk = ""
+            }
+            chunk.append(character)
+        }
+        chunks.append(chunk)
+        return chunks.map { MakeDevaUnicode.transliteratePreparedIAST(makeDevaASCIIToIAST($0)) }.joined()
     }
 
     /// Reconstruct MakeDeva ASCII (Harvard-Kyoto-like) from glyph codes.

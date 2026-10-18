@@ -204,3 +204,17 @@ C `devaline.c:1046` emits it, never as a splice vowel belonging to a preceding
 fixed-vowel cluster (`śṛṅgidaṁṣṭriṇām` → `शृङ्गिदंष्ट्रिणाम्`). Both defects
 were reproduced in failing real-path regressions; all 179 core tests pass.
 Glyph generation and literal reader Unicode are unchanged.
+
+### Preserve reverse ASCII consonant-token identity (2026-10-18)
+
+Glyph reconstruction distinguishes two tokens `g`+`h` from one aspirated `G`.
+Unicode decoding now converts separately across lower-case stop+h boundaries
+and concatenates the logical results, rather than flattening both into the
+same IAST digraph. No separator or invisible code point is injected. This
+preserves `ग्ह` versus `घ` and `त्ह` versus `थ`; glyph generation is unchanged.
+`makeDevaASCIIToIAST` remains a display spelling helper, not a lossless token IR.
+
+The old `E4 2C 22 68 22 6D 61 52` fixture mislabeled dead dental d+h as धर्म.
+It now expects द्हर्म, retaining the exact glyph bytes. A second fixture uses
+the actual aspirated bytes `44 61 6D 61 52` → धर्म. C fontc d and fonta D
+confirm the distinction; all 181 core tests pass.
