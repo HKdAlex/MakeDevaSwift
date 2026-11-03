@@ -7,6 +7,20 @@ import MakeDevaCore
 /// Processes command-line arguments and converts BBT files to Devanagari.
 func main() {
     let arguments = Array(CommandLine.arguments.dropFirst())
+    if arguments.first == "--decode-rmd-glyphs" {
+        guard arguments.count == 1 else {
+            FileHandle.standardError.write(Data("Usage: makedeva --decode-rmd-glyphs < input.json > result.json\n".utf8))
+            exit(2)
+        }
+        do {
+            let input = FileHandle.standardInput.readDataToEndOfFile()
+            FileHandle.standardOutput.write(try GlyphBufferCommand.convert(input))
+        } catch {
+            FileHandle.standardError.write(Data((error.localizedDescription + "\n").utf8))
+            exit(2)
+        }
+        return
+    }
     
     // Parse command-line options
     guard let options = CLIOptionParser.parse(arguments) else {
