@@ -84,6 +84,35 @@ swift test --filter MakeDevaParityTests        # full C parity batch (minutes)
 
 ## Tracker
 
+### Strict source glyph JSON probe (#25)
+
+`makedeva --decode-rmd-glyphs` reads a JSON array from standard input and writes
+one deterministic `rmd-glyph-probe/1` result to standard output:
+
+```sh
+printf '%s' '[{"id":"source-word","glyphs":[118,97,65,99,97,65,101]}]' | makedeva --decode-rmd-glyphs
+```
+
+Each result record retains its source identity and input bytes, reconstructed
+MakeDeva ASCII, the existing decoder's Unicode result, and regenerated glyph
+bytes. Every buffer must regenerate exactly before the batch emits any output.
+Malformed JSON, out-of-range bytes, duplicate/empty identities, empty buffers,
+or skipped/non-reproducible glyphs exit 2 with no partial JSON result. Existing
+file-conversion options and library conversion behavior are unchanged.
+
+This is an intake probe, not a universal legacy-font converter. The caller must
+qualify the exact font, its character-to-byte transport, source punctuation and
+Unicode layout characters separately. In particular, the existing decoder API
+keeps its ASCII punctuation convention; a source-font profile must account for
+RM danda glyphs and must preserve thin spaces rather than normalizing them away.
+Exact glyph replay does not establish unique Roman spelling, font identity,
+editorial acceptance, complete-book fidelity or publication qualification.
+
+The first bounded source witness is the 2017 Russian NOI iBooks font family:
+49 source segments reproduce exactly and match the separately reviewed prototype.
+Its 11 script groups and 38 lines also parse as existing authored Indic blocks in BBText;
+this is not a whole-book qualification or a change to BBText syntax.
+
 [BBText engine unification #22](https://github.com/HKdAlex/BBText/issues/22) ·
 Unicode path [#26](https://github.com/HKdAlex/BBText/issues/26) ·
 Glyph decode [#58](https://github.com/HKdAlex/BBText/issues/58) ·
